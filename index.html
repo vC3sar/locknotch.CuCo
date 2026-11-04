@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LockNotch</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="cuco/cuco.css" />
+  </head>
+  <body>
+    <div id="notch-root">
+      
+      <!-- Chasis del Notch -->
+      <main id="notch" class="notch compact" role="region" aria-label="Isla dinámica de control">
+        
+        <!-- Fusión cóncava G2 continua con el bisel -->
+        <svg class="notch-ear left" viewBox="0 0 14 14" aria-hidden="true">
+          <path d="M0,0 L14,0 L14,14 C14,6 8,0 0,0 Z" />
+        </svg>
+        <svg class="notch-ear right" viewBox="0 0 14 14" aria-hidden="true">
+          <path d="M14,0 L0,0 L0,14 C0,6 6,0 14,0 Z" />
+        </svg>
+
+        <!-- Barra inferior milimétrica de descarga -->
+        <div id="notch-progress-bar" class="notch-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+
+        <!-- CUCO: compañero del notch (persiste entre vistas para mantener continuidad) -->
+        <div id="cuco-dock" class="cuco-dock"></div>
+        <div id="cuco-caption" class="cuco-caption" aria-live="polite"><span class="cuco-caption-text">CUCO</span></div>
+
+        <!-- ================= 1. VISTA COMPACTA ================= -->
+        <div id="view-compact" class="view view-compact">
+          
+          <!-- Reposo: Reloj, Micro-clima y Batería -->
+          <div id="compact-idle" class="compact-row">
+            <div class="notch-col left">
+              <span id="compact-time" class="text-time">--:--</span>
+              <div id="compact-weather-pill" class="compact-weather-pill" title="Clima">
+                <span id="compact-weather-glyph" class="weather-glyph">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                </span>
+                <span id="compact-weather-temp" class="weather-temp">--°</span>
+              </div>
+            </div>
+            <div class="notch-col right">
+              <span id="compact-battery" class="text-battery">100%</span>
+              <span id="compact-battery-icon" class="battery-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <!-- Reproducción Activa: Carátula viva y pulso acústico -->
+          <div id="compact-media" class="compact-row hidden">
+            <div class="notch-col left media-left">
+              <img id="compact-media-art" class="media-thumb-mini" src="assets/album_art.jpg" alt="Carátula" />
+              <div class="marquee-wrapper mini-media-wrapper">
+                <span id="compact-media-title" class="marquee-text">Sin reproducción</span>
+              </div>
+            </div>
+            <div class="notch-col right">
+              <div id="compact-visualizer" class="acoustic-pulse">
+                <div class="acoustic-bar"></div>
+                <div class="acoustic-bar"></div>
+                <div class="acoustic-bar"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Descarga Activa de Chrome -->
+          <div id="compact-download" class="compact-row hidden">
+            <div class="notch-col left download-left">
+              <span class="download-arrow-anim">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              </span>
+              <div class="marquee-wrapper">
+                <span id="compact-dl-name" class="marquee-text">Descarga...</span>
+              </div>
+            </div>
+            <div class="notch-col right download-right">
+              <span id="compact-dl-percent" class="dl-percent">0%</span>
+              <span id="compact-dl-speed" class="dl-speed">0.0 MB/s</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ================= 2. VISTA NOTIFICACIÓN (USB REAL) ================= -->
+        <div id="view-notification" class="view view-notification hidden" role="status" aria-live="polite">
+          <div class="notif-content">
+            <div id="notif-icon-badge" class="notif-icon-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="1"/><circle cx="4" cy="20" r="1"/><path d="M4.7 19.3 19 5"/><path d="m21 3-3 1 2 2Z"/><path d="M9.26 7.68 5 12l2 5"/><path d="m10 14 5 2 3.5-3.5"/><circle cx="18" cy="12" r="1"/><path d="m18 12-1.5-1.5"/></svg>
+            </div>
+            <div class="notif-details">
+              <span id="notif-title" class="notif-title">Hardware detectado</span>
+              <span id="notif-subtitle" class="notif-subtitle">Dispositivo USB</span>
+            </div>
+          </div>
+          <div class="notif-status-dot"></div>
+        </div>
+
+        <!-- ================= 3. VISTA EXPANDIDA ================= -->
+        <div id="view-expanded" class="view view-expanded hidden">
+          
+          <!-- Encabezado contextual -->
+          <header class="card-header">
+            <div class="header-status-label">
+              <span id="exp-status-icon">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              </span>
+              <span id="exp-status-text">Audio del Sistema</span>
+            </div>
+            <div class="header-actions">
+              <button id="btn-collapse" class="icon-btn" title="Colapsar (Esc)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+              </button>
+              <button id="btn-close-app" class="icon-btn close" title="Cerrar LockNotch">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
+            </div>
+          </header>
+
+          <!-- Cuerpo Central con Ranura Mecánica -->
+          <section class="expanded-body">
+            
+            <div class="vinyl-sleeve-pocket">
+              <div id="vinyl-disc-host" class="vinyl-disc-host visible">
+                <div id="vinyl-disc" class="vinyl-disc">
+                  <div class="vinyl-grooves"></div>
+                  <div class="vinyl-sheen"></div>
+                  <div class="vinyl-label">
+                    <img id="vinyl-art-img" src="assets/album_art.jpg" alt="Carátula del álbum" />
+                  </div>
+                  <div class="vinyl-spindle"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="media-meta-card">
+              <span id="exp-media-artist" class="media-artist">Sin reproducción</span>
+              <span id="exp-media-title" class="media-title">Inicia Spotify o tu navegador</span>
+            </div>
+
+            <!-- Scrubber milimétrico -->
+            <div class="media-timeline">
+              <div id="media-progress-track" class="timeline-track" role="slider" aria-label="Progreso de audio">
+                <div id="media-progress-fill" class="timeline-fill" style="width: 0%;"></div>
+              </div>
+              <div class="timeline-times">
+                <span id="media-time-pos">0:00</span>
+                <span id="media-time-end">0:00</span>
+              </div>
+            </div>
+
+            <!-- Controles Táctiles -->
+            <div class="media-controls-row">
+              <button id="btn-media-prev" class="ctrl-btn" title="Anterior">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
+              </button>
+              <button id="btn-media-play" class="ctrl-btn play-pause" title="Reproducir / Pausar (Espacio)">
+                <span id="media-play-icon">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                </span>
+              </button>
+              <button id="btn-media-next" class="ctrl-btn" title="Siguiente">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
+              </button>
+            </div>
+
+          </section>
+
+          <!-- Pie de Telemetría Discreta -->
+          <footer class="telemetry-footer">
+            <div class="telemetry-pill">
+              <span id="exp-weather-icon-small">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/></svg>
+              </span>
+              <span id="exp-weather-city">Local</span> · <span id="exp-weather-temp">--°C</span>
+            </div>
+            <div class="telemetry-pill secondary">
+              <span id="exp-sys-battery">100%</span>
+            </div>
+          </footer>
+
+        </div>
+
+      </main>
+
+    </div>
+
+    <script src="cuco/cuco-state.js"></script>
+    <script src="cuco/cuco.js"></script>
+    <script src="renderer.js"></script>
+  </body>
+</html>

@@ -1,0 +1,551 @@
+/* ============================================================
+   CUCO — Mascota del notch
+   ------------------------------------------------------------
+   · Posición/tamaño por modo del notch (compacto, aviso, expandido),
+     con la misma curva de muelle que el chasis.
+   · Movimiento continuo SOLO con transform sobre capas compuestas
+     (.cuco-float, .cuco-body, .cuco-head) → sin repintado.
+   · Expresiones con morphing de trazados SVG (propiedad CSS `d`).
+   ============================================================ */
+
+.notch {
+  /* Hueco central reservado a CUCO en la vista compacta */
+  --cuco-slot: 40px;
+}
+
+/* ---------- Dock: anclaje dentro del chasis ---------- */
+.cuco-dock {
+  --cuco-size: 30px;
+  --cuco-cx: 50%;
+  --cuco-top: 2px;
+
+  position: absolute;
+  z-index: 5;
+  left: var(--cuco-cx);
+  top: var(--cuco-top);
+  width: var(--cuco-size);
+  height: var(--cuco-size);
+  margin-left: calc(var(--cuco-size) / -2);
+  pointer-events: auto;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    left var(--t-motion) var(--spring-expand),
+    top var(--t-motion) var(--spring-expand),
+    width var(--t-motion) var(--spring-expand),
+    height var(--t-motion) var(--spring-expand),
+    margin-left var(--t-motion) var(--spring-expand);
+}
+
+.notch.expanded .cuco-dock {
+  --cuco-size: 34px;
+  --cuco-top: 3px;
+}
+
+/* En el aviso, CUCO se aparta a la derecha para no tapar el texto */
+.notch.notification-mode .cuco-dock {
+  --cuco-size: 32px;
+  --cuco-top: 3px;
+  --cuco-cx: calc(100% - 44px);
+}
+
+/* ---------- Nombre / mensaje breve (solo expandido) ---------- */
+.cuco-caption {
+  position: absolute;
+  z-index: 5;
+  top: 13px;
+  left: calc(50% + 22px);
+  max-width: 86px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 12px;
+  color: var(--theme-text-muted);
+  text-shadow: var(--theme-text-shadow);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.18s ease, transform 0.3s var(--spring-expand), color 0.4s ease;
+}
+
+.notch.expanded .cuco-caption {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.12s, 0.12s, 0s;
+}
+
+.notch.expanded .cuco-caption.is-swapping {
+  opacity: 0;
+  transform: translateY(2px);
+  transition-delay: 0s;
+}
+
+/* ---------- Estructura de capas ---------- */
+.cuco {
+  --cuco-ease: cubic-bezier(0.33, 1, 0.68, 1);
+  --cuco-spring: cubic-bezier(0.34, 1.45, 0.64, 1);
+  --cuco-breath: 4.8s;
+  --cuco-float: 4.2s;
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.cuco-float,
+.cuco-react,
+.cuco-pose,
+.cuco-head-pose {
+  position: absolute;
+  inset: 0;
+}
+
+.cuco-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+.cuco-float {
+  will-change: transform;
+  animation: cuco-float var(--cuco-float) ease-in-out infinite;
+}
+
+.cuco-react {
+  transform-origin: 50% 96%;
+}
+
+.cuco-pose,
+.cuco-head-pose {
+  transition: transform 0.55s var(--cuco-ease);
+}
+
+.cuco-pose { transform-origin: 50% 96%; }
+.cuco-head-pose { transform-origin: 50% 64%; }
+
+.cuco-body {
+  transform-origin: 50% 95%;
+  will-change: transform;
+  animation: cuco-breathe var(--cuco-breath) ease-in-out infinite;
+}
+
+.cuco-head {
+  transform-origin: 50% 64%;
+  will-change: transform;
+  animation: cuco-head-breathe var(--cuco-breath) ease-in-out infinite;
+}
+
+/* ---------- Piezas internas del SVG ---------- */
+.cuco-eye {
+  transition: d 0.28s var(--cuco-ease), opacity 0.3s ease;
+}
+
+.cuco-mouth {
+  opacity: 0.85;
+  transition: d 0.3s var(--cuco-ease), opacity 0.3s ease;
+}
+
+.cuco-eye-anim {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.cuco-spark {
+  transition: opacity 0.2s ease;
+}
+
+.cuco-gaze {
+  transition: transform 0.45s var(--cuco-ease), opacity 0.3s ease;
+}
+
+.cuco-blush {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.cuco-scan {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.cuco-arm {
+  transition: transform 0.5s var(--cuco-spring);
+}
+
+.cuco-arm-l { transform-origin: 20.5px 46px; transform: rotate(12deg); }
+.cuco-arm-r { transform-origin: 43.5px 46px; transform: rotate(-12deg); }
+
+.cuco-antenna {
+  transform-origin: 32px 11px;
+  transition: transform 0.5s var(--cuco-spring);
+}
+
+.cuco-bead { transition: opacity 0.35s ease; }
+.cuco-bead-warn { opacity: 0; transition: opacity 0.35s ease; }
+
+.cuco-ear-light {
+  opacity: 0.5;
+  transition: opacity 0.35s ease;
+}
+
+.cuco-core {
+  opacity: 0.75;
+  transition: opacity 0.35s ease;
+}
+
+/* ---------- Auriculares (se ponen con cualquier reproducción activa) ---------- */
+.cuco-headphones {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.92);
+  transform-origin: 32px 14px;
+  transition: opacity 0.35s ease, transform 0.4s var(--cuco-spring);
+  pointer-events: none;
+}
+
+.cuco[data-music] .cuco-headphones {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.cuco[data-music] .cuco-ear-light {
+  opacity: 0.2; /* Las almohadillas cubren las orejas con estilo */
+}
+
+/* ---------- TV retrofuturista (aparece al reproducir video / no-música) ---------- */
+.cuco-tv-prop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(14px) scale(0.7);
+  transform-origin: 32px 55px;
+  transition: opacity 0.4s ease, transform 0.45s var(--cuco-spring);
+  z-index: 12;
+}
+
+.cuco[data-media-tv] .cuco-tv-prop {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.cuco-tv-screen {
+  animation: cuco-tv-flicker 1.8s infinite alternate;
+}
+
+@keyframes cuco-tv-flicker {
+  0% { opacity: 0.75; filter: brightness(0.9); }
+  50% { opacity: 1; filter: brightness(1.2); }
+  100% { opacity: 0.85; filter: brightness(1.05); }
+}
+
+/* ---------- Vida ambiental ---------- */
+.cuco.is-blinking .cuco-eye-anim {
+  animation: cuco-blink 0.17s ease-in-out;
+}
+
+.cuco[data-look="l"] .cuco-gaze { transform: translate(-1.6px, 0.2px); }
+.cuco[data-look="r"] .cuco-gaze { transform: translate(1.6px, 0.2px); }
+
+/* ============================================================
+   ESTADOS
+   ============================================================ */
+
+/* ---------- HAPPY ---------- */
+.cuco[data-state="happy"] .cuco-eye {
+  d: path("M0,-2.4 C2.2,-2.4 3.7,-0.4 3.7,1.8 C2.7,0.7 1.4,0.1 0,0.1 C-1.4,0.1 -2.7,0.7 -3.7,1.8 C-3.7,-0.4 -2.2,-2.4 0,-2.4 Z");
+}
+.cuco[data-state="happy"] .cuco-mouth {
+  d: path("M-3.6,-0.8 C-1.9,0.5 1.9,0.5 3.6,-0.8 C2.8,2.8 -2.8,2.8 -3.6,-0.8 Z");
+  opacity: 1;
+}
+.cuco[data-state="happy"] .cuco-spark { opacity: 0; }
+.cuco[data-state="happy"] .cuco-blush { opacity: 0.5; }
+.cuco[data-state="happy"] .cuco-gaze { transform: translate(0, -0.4px); }
+.cuco[data-state="happy"] .cuco-ear-light { opacity: 0.85; }
+.cuco[data-state="happy"] .cuco-arm-l { transform: rotate(34deg); }
+.cuco[data-state="happy"] .cuco-arm-r { transform: rotate(-96deg); }
+.cuco[data-state="happy"] .cuco-react.is-reacting .cuco-arm-r { animation: cuco-wave 0.36s ease-in-out 0.12s 4 alternate; }
+.cuco[data-state="happy"] .cuco-react.is-reacting { animation: cuco-hop 0.78s var(--cuco-ease) 2; }
+
+/* ---------- NOTIFICATION ---------- */
+.cuco[data-state="notification"] .cuco-eye {
+  d: path("M0,-5 C2.6,-5 4.3,-2.8 4.3,0 C4.3,2.8 2.6,4.8 0,4.8 C-2.6,4.8 -4.3,2.8 -4.3,0 C-4.3,-2.8 -2.6,-5 0,-5 Z");
+}
+.cuco[data-state="notification"] .cuco-mouth {
+  d: path("M-1.5,0.3 C-1.5,-1.5 1.5,-1.5 1.5,0.3 C1.5,2.1 -1.5,2.1 -1.5,0.3 Z");
+  opacity: 1;
+}
+.cuco[data-state="notification"] .cuco-gaze { transform: translate(0, -0.6px); }
+.cuco[data-state="notification"] .cuco-ear-light { opacity: 1; }
+.cuco[data-state="notification"] .cuco-arm-l { transform: rotate(70deg); }
+.cuco[data-state="notification"] .cuco-arm-r { transform: rotate(-70deg); }
+.cuco[data-state="notification"] .cuco-react.is-reacting { animation: cuco-pop 0.6s var(--cuco-ease) 1; }
+.cuco[data-state="notification"] .cuco-react.is-reacting .cuco-antenna { animation: cuco-antenna-wiggle 0.5s ease-in-out 2; }
+.cuco[data-state="notification"][data-tone="warn"] .cuco-bead-warn { opacity: 1; }
+.cuco[data-state="notification"][data-tone="warn"] .cuco-bead { opacity: 0; }
+
+/* ---------- WORKING ---------- */
+.cuco[data-state="working"] {
+  --cuco-float: 2.2s;
+}
+.cuco[data-state="working"] .cuco-eye {
+  d: path("M0,-2 C2.3,-2 3.8,-1.3 3.8,0 C3.8,1.3 2.3,2 0,2 C-2.3,2 -3.8,1.3 -3.8,0 C-3.8,-1.3 -2.3,-2 0,-2 Z");
+}
+.cuco[data-state="working"] .cuco-mouth {
+  d: path("M-1.8,0.4 C-0.6,0.6 0.6,0.6 1.8,0.4 C0.7,1.2 -0.7,1.2 -1.8,0.4 Z");
+}
+.cuco[data-state="working"] .cuco-spark { opacity: 0; }
+.cuco[data-state="working"] .cuco-gaze { animation: cuco-scan-eyes 1.3s ease-in-out infinite alternate; }
+.cuco[data-state="working"] .cuco-scan { opacity: 1; animation: cuco-scan-sweep 1.6s linear infinite; }
+.cuco[data-state="working"] .cuco-core { animation: cuco-core-pulse 1.1s ease-in-out infinite; }
+.cuco[data-state="working"] .cuco-ear-light { opacity: 0.85; }
+.cuco[data-state="working"] .cuco-arm-l { animation: cuco-type-l 0.5s ease-in-out infinite alternate; }
+.cuco[data-state="working"] .cuco-arm-r { animation: cuco-type-r 0.5s ease-in-out 0.25s infinite alternate; }
+.cuco[data-state="working"] .cuco-head-pose { transform: translateY(1.5%) rotate(-2deg); }
+
+/* ---------- LISTENING ---------- */
+.cuco[data-state="listening"] .cuco-eye {
+  d: path("M0,-4.9 C2.2,-4.9 3.7,-2.7 3.7,0 C3.7,2.6 2.2,4.6 0,4.6 C-2.2,4.6 -3.7,2.6 -3.7,0 C-3.7,-2.7 -2.2,-4.9 0,-4.9 Z");
+}
+.cuco[data-state="listening"] .cuco-mouth {
+  d: path("M-1.8,0 C-0.9,0.7 0.9,0.7 1.8,0 C1,1.3 -1,1.3 -1.8,0 Z");
+}
+.cuco[data-state="listening"] .cuco-gaze { transform: translate(0.3px, -0.7px); }
+.cuco[data-state="listening"] .cuco-ear-light { opacity: 1; }
+.cuco[data-state="listening"] .cuco-antenna { transform: rotate(-9deg); }
+.cuco[data-state="listening"] .cuco-arm-l { transform: rotate(16deg); }
+.cuco[data-state="listening"] .cuco-arm-r { transform: rotate(-20deg); }
+.cuco[data-state="listening"] .cuco-head-pose { transform: rotate(-5deg); }
+/* Con música de plataformas de streaming (Spotify, Apple Music, Mexlify...): ¡A BAILAR! */
+.cuco[data-music-dancing] {
+  --cuco-float: 1.1s;
+}
+.cuco[data-music-dancing] .cuco-float {
+  animation: cuco-dance-bounce 0.55s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing] .cuco-head {
+  animation: cuco-dance-head 0.55s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing] .cuco-arm-l {
+  animation: cuco-dance-arm-l 0.55s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing] .cuco-arm-r {
+  animation: cuco-dance-arm-r 0.55s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing] .cuco-eye {
+  d: path("M0,-2.4 C2.2,-2.4 3.7,-0.4 3.7,1.8 C2.7,0.7 1.4,0.1 0,0.1 C-1.4,0.1 -2.7,0.7 -3.7,1.8 C-3.7,-0.4 -2.2,-2.4 0,-2.4 Z");
+}
+.cuco[data-music-dancing] .cuco-mouth {
+  d: path("M-3.2,-0.5 C-1.6,0.6 1.6,0.6 3.2,-0.5 C2.4,2.2 -2.4,2.2 -3.2,-0.5 Z");
+  opacity: 1;
+}
+.cuco[data-music-dancing] .cuco-blush {
+  opacity: 0.6;
+}
+
+/* Con reproducción de otras apps (videos/navegador): Con audífonos viendo la TV */
+.cuco[data-media-tv] .cuco-head-pose {
+  transform: translateY(3%) rotate(0deg);
+}
+.cuco[data-media-tv] .cuco-gaze {
+  transform: translate(0, 1.8px); /* Mirando hacia abajo a la TV */
+}
+.cuco[data-media-tv] .cuco-eye {
+  d: path("M0,-3.5 C2,-3.5 3.5,-1.8 3.5,0.6 C3.5,2.8 2,4.4 0,4.4 C-2,4.4 -3.5,2.8 -3.5,0.6 C-3.5,-1.8 -2,-3.5 0,-3.5 Z");
+}
+.cuco[data-media-tv] .cuco-arm-l {
+  transform: rotate(38deg) translateY(-2px); /* Sosteniendo o apoyado en la tele */
+}
+.cuco[data-media-tv] .cuco-arm-r {
+  transform: rotate(-38deg) translateY(-2px);
+}
+
+/* Con música genérica (fallback si no es ni baile ni TV específica): balanceo suave */
+.cuco[data-state="listening"][data-music]:not([data-music-dancing]):not([data-media-tv]) .cuco-head {
+  animation: cuco-head-groove 2.4s ease-in-out infinite;
+}
+
+/* ---------- SLEEPING ---------- */
+.cuco[data-state="sleeping"] {
+  --cuco-breath: 7s;
+  --cuco-float: 7s;
+}
+.cuco[data-state="sleeping"] .cuco-eye {
+  d: path("M0,1.4 C1.6,1.4 2.9,0.8 3.6,-0.2 C3.1,1.5 1.8,2.6 0,2.6 C-1.8,2.6 -3.1,1.5 -3.6,-0.2 C-2.9,0.8 -1.6,1.4 0,1.4 Z");
+  opacity: 0.75;
+}
+.cuco[data-state="sleeping"] .cuco-mouth {
+  d: path("M-1.3,0.5 C-0.5,0.8 0.5,0.8 1.3,0.5 C0.5,1.1 -0.5,1.1 -1.3,0.5 Z");
+  opacity: 0.5;
+}
+.cuco[data-state="sleeping"] .cuco-spark { opacity: 0; }
+.cuco[data-state="sleeping"] .cuco-gaze { transform: translate(0, 1px); }
+.cuco[data-state="sleeping"] .cuco-ear-light { opacity: 0.12; }
+.cuco[data-state="sleeping"] .cuco-core { opacity: 0.25; }
+.cuco[data-state="sleeping"] .cuco-bead { opacity: 0.35; }
+.cuco[data-state="sleeping"] .cuco-antenna { transform: rotate(20deg); }
+.cuco[data-state="sleeping"] .cuco-arm-l { transform: rotate(5deg); }
+.cuco[data-state="sleeping"] .cuco-arm-r { transform: rotate(-5deg); }
+.cuco[data-state="sleeping"] .cuco-pose { transform: translateY(3%); }
+.cuco[data-state="sleeping"] .cuco-head-pose { transform: translateY(2.5%) rotate(7deg); }
+
+/* ---------- ERROR (preocupación, sin alarmismo) ---------- */
+.cuco[data-state="error"] .cuco-eye {
+  d: path("M0.8,-4 C2.4,-4.4 3.5,-2.6 3.5,0 C3.5,2.4 2,4 0,4 C-2,4 -3.5,2.4 -3.5,0.6 C-3.5,-1.2 -1.6,-3.2 0.8,-4 Z");
+  opacity: 0.9;
+}
+.cuco[data-state="error"] .cuco-mouth {
+  d: path("M-2.3,1 C-1.3,-0.3 1.3,-0.3 2.3,1 C1.3,0.4 -1.3,0.4 -2.3,1 Z");
+  opacity: 0.8;
+}
+.cuco[data-state="error"] .cuco-gaze { transform: translate(0, 0.6px); }
+.cuco[data-state="error"] .cuco-bead-warn { opacity: 1; }
+.cuco[data-state="error"] .cuco-bead { opacity: 0; }
+.cuco[data-state="error"] .cuco-ear-light { opacity: 0.3; }
+.cuco[data-state="error"] .cuco-antenna { transform: rotate(10deg); }
+.cuco[data-state="error"] .cuco-arm-l { transform: rotate(-4deg); }
+.cuco[data-state="error"] .cuco-arm-r { transform: rotate(4deg); }
+.cuco[data-state="error"] .cuco-head-pose { transform: translateY(1.5%) rotate(-3deg); }
+.cuco[data-state="error"] .cuco-react.is-reacting { animation: cuco-shake 0.7s var(--cuco-ease) 1; }
+
+/* ---------- Pantalla bloqueada: congelar todo ---------- */
+.cuco[data-paused],
+.cuco[data-paused] * {
+  animation-play-state: paused !important;
+}
+
+/* ============================================================
+   KEYFRAMES (transform / opacity únicamente)
+   ============================================================ */
+@keyframes cuco-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3.5%); }
+}
+
+@keyframes cuco-breathe {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.03); }
+}
+
+@keyframes cuco-head-breathe {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.4%); }
+}
+
+@keyframes cuco-head-groove {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-1.2%) rotate(-3deg); }
+  75% { transform: translateY(-1.2%) rotate(3deg); }
+}
+
+@keyframes cuco-blink {
+  0%, 100% { transform: scaleY(1); }
+  45%, 55% { transform: scaleY(0.12); }
+}
+
+@keyframes cuco-hop {
+  0% { transform: translateY(0) scale(1, 1); }
+  16% { transform: translateY(0) scale(1.05, 0.95); }
+  44% { transform: translateY(-9%) scale(0.98, 1.02); }
+  72% { transform: translateY(0) scale(1.03, 0.97); }
+  86% { transform: translateY(0) scale(0.995, 1.005); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+@keyframes cuco-pop {
+  0% { transform: translateY(0) scale(1); }
+  22% { transform: translateY(-7%) scale(1.06); }
+  55% { transform: translateY(0) scale(0.98); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes cuco-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3%) rotate(-2deg); }
+  45% { transform: translateX(2.5%) rotate(1.5deg); }
+  70% { transform: translateX(-1.2%) rotate(-0.5deg); }
+}
+
+@keyframes cuco-wave {
+  from { transform: rotate(-96deg); }
+  to { transform: rotate(-124deg); }
+}
+
+@keyframes cuco-antenna-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-14deg); }
+  75% { transform: rotate(14deg); }
+}
+
+@keyframes cuco-scan-eyes {
+  from { transform: translate(-1.4px, 0); }
+  to { transform: translate(1.4px, 0); }
+}
+
+@keyframes cuco-scan-sweep {
+  from { transform: translateX(0); }
+  to { transform: translateX(46px); }
+}
+
+@keyframes cuco-core-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+@keyframes cuco-type-l {
+  from { transform: rotate(10deg); }
+  to { transform: rotate(22deg); }
+}
+
+@keyframes cuco-type-r {
+  from { transform: rotate(-10deg); }
+  to { transform: rotate(-22deg); }
+}
+
+/* Coreografía de Baile (con música en plataformas streaming) */
+@keyframes cuco-dance-bounce {
+  0% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-7%) scale(0.97, 1.03); }
+  100% { transform: translateY(1%) scale(1.04, 0.96); }
+}
+
+@keyframes cuco-dance-head {
+  0% { transform: rotate(-8deg) translateY(-2%); }
+  50% { transform: rotate(0deg) translateY(0); }
+  100% { transform: rotate(8deg) translateY(-2%); }
+}
+
+@keyframes cuco-dance-arm-l {
+  0% { transform: rotate(50deg) translateY(-2px); }
+  50% { transform: rotate(15deg); }
+  100% { transform: rotate(-40deg) translateY(2px); }
+}
+
+@keyframes cuco-dance-arm-r {
+  0% { transform: rotate(-40deg) translateY(2px); }
+  50% { transform: rotate(-15deg); }
+  100% { transform: rotate(50deg) translateY(-2px); }
+}
+
+/* ============================================================
+   Accesibilidad: movimiento reducido → CUCO quieto, solo expresiones
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .cuco *,
+  .cuco-dock,
+  .cuco-caption {
+    animation: none !important;
+  }
+  .cuco-float,
+  .cuco-body,
+  .cuco-head {
+    will-change: auto;
+  }
+}

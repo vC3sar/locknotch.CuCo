@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "LockNotch Downloads Connector",
+  "version": "2.0.0",
+  "description": "Conecta las descargas de Chrome con LockNotch Island en Windows",
+  "permissions": [
+    "downloads"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:4040/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}

@@ -1,2 +1,0 @@
-main started
-calling locknotch_lib::run

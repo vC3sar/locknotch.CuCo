@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "uyKu4A1hQAQ=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\vCesar\\OneDrive\\Escritorio\\Proyectos\\LockNotch\\scripts\\media-service\\media-service.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\vCesar\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.33\\microsoft.net.illink.tasks.8.0.33.nupkg.sha512",
+    "C:\\Users\\vCesar\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.19041.56\\microsoft.windows.sdk.net.ref.10.0.19041.56.nupkg.sha512"
+  ],
+  "logs": []
+}

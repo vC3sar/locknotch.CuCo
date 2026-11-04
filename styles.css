@@ -1,0 +1,832 @@
+/* ============================================================
+   LOCKNOTCH DESIGN SYSTEM TOKENS (Obsidian Minimalist v3)
+   ============================================================ */
+:root {
+  /* Tipografía de precisión */
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI', -apple-system, system-ui, sans-serif;
+  --font-text: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, system-ui, sans-serif;
+  --font-mono: 'Consolas', 'Cascadia Code', monospace;
+
+  /* Geometría y Escalas (anchos compactos con hueco central para CUCO) */
+  --notch-w-idle: 256px;
+  --notch-h-idle: 34px;
+  --notch-r-idle: 17px;
+
+  --notch-w-media: 308px;
+  --notch-h-media: 34px;
+  --notch-r-media: 17px;
+
+  --notch-w-notif: 304px;
+  --notch-h-notif: 38px;
+  --notch-r-notif: 19px;
+
+  --notch-w-exp: 356px;
+  --notch-h-exp: 304px;
+  --notch-r-exp: 28px;
+
+  /* Paleta Monocromática con Profundidad */
+  --c-obsidian: #000000;
+  --c-elevated: rgba(255, 255, 255, 0.04);
+  --c-elevated-hover: rgba(255, 255, 255, 0.08);
+  --c-border-hairline: rgba(255, 255, 255, 0.10);
+  --c-border-subtle: rgba(255, 255, 255, 0.05);
+
+  --c-text-bright: #F5F5F7;
+  --c-text-primary: #E4E4E7;
+  --c-text-secondary: #A1A1AA;
+  --c-text-muted: #52525B;
+
+  --c-accent-success: #22C55E;
+  --c-accent-amber: #EAB308;
+  --c-accent-tint: rgba(255, 255, 255, 0.03);
+
+  /* Variables dinámicas para auto-adaptar contraste sobre cualquier portada */
+  --theme-text-bright: var(--c-text-bright);
+  --theme-text-sub: rgba(255, 255, 255, 0.76);
+  --theme-text-muted: rgba(255, 255, 255, 0.50);
+  --theme-ctrl-color: rgba(255, 255, 255, 0.82);
+  --theme-ctrl-play-bg: var(--c-elevated);
+  --theme-ctrl-play-border: var(--c-border-hairline);
+  --theme-track-bg: rgba(255, 255, 255, 0.12);
+  --theme-track-fill: #FFFFFF;
+  --theme-border-subtle: var(--c-border-subtle);
+  --theme-text-shadow: none;
+
+  /* Curvas Físicas con Inercia */
+  --spring-expand: cubic-bezier(0.16, 1, 0.3, 1);
+  --spring-collapse: cubic-bezier(0.25, 1, 0.5, 1);
+  --spring-vinyl: cubic-bezier(0.34, 1.25, 0.64, 1);
+  --t-motion: 320ms;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent !important;
+  font-family: var(--font-text);
+  color: var(--c-text-primary);
+  font-feature-settings: "tnum" 1, "cv02" 1, "cv03" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+#notch-root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+/* ============================================================
+   CHASIS DEL NOTCH (Fusión con el Bisel del Monitor)
+   ============================================================ */
+.notch {
+  position: relative;
+  pointer-events: auto;
+  background: var(--c-obsidian);
+  cursor: pointer;
+  z-index: 100;
+  overflow: hidden;
+
+  /* Borde lateral e inferior microscópico que muere en la parte superior */
+  border-left: 1px solid var(--c-border-hairline);
+  border-right: 1px solid var(--c-border-hairline);
+  border-bottom: 1px solid var(--c-border-hairline);
+  border-top: none;
+
+  /* Sombra gravitatoria proyectada hacia abajo exclusivamente */
+  box-shadow:
+    0 16px 38px rgba(0, 0, 0, 0.95),
+    0 4px 12px rgba(0, 0, 0, 0.75);
+
+  transition:
+    width var(--t-motion) var(--spring-expand),
+    height var(--t-motion) var(--spring-expand),
+    border-radius var(--t-motion) var(--spring-expand),
+    box-shadow var(--t-motion) ease;
+
+  will-change: width, height, border-radius;
+}
+
+/* Tinte degradado extraído de la portada (solo expandido con música) */
+@property --tint-a { syntax: '<color>'; inherits: true; initial-value: rgba(0, 0, 0, 0); }
+@property --tint-b { syntax: '<color>'; inherits: true; initial-value: rgba(0, 0, 0, 0); }
+
+.notch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(175deg, var(--tint-a) 0%, var(--tint-b) 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease, --tint-a 0.6s ease, --tint-b 0.6s ease;
+  z-index: 1;
+}
+
+.notch.expanded::after,
+.notch.compact.playing-media::after {
+  opacity: 1;
+}
+
+/* --- Estados Geométricos --- */
+.notch.compact {
+  width: var(--notch-w-idle);
+  height: var(--notch-h-idle);
+  border-radius: 0 0 var(--notch-r-idle) var(--notch-r-idle);
+}
+
+.notch.compact.playing-media {
+  width: var(--notch-w-media);
+  height: var(--notch-h-media);
+  border-radius: 0 0 var(--notch-r-media) var(--notch-r-media);
+}
+
+.notch.compact.downloading {
+  width: 320px;
+  height: var(--notch-h-idle);
+  border-radius: 0 0 var(--notch-r-idle) var(--notch-r-idle);
+}
+
+.notch.notification-mode {
+  width: var(--notch-w-notif);
+  height: var(--notch-h-notif);
+  border-radius: 0 0 var(--notch-r-notif) var(--notch-r-notif);
+  border-bottom-color: rgba(255, 255, 255, 0.22);
+}
+
+.notch.notification-mode.disconnected {
+  border-bottom-color: rgba(234, 179, 8, 0.35);
+}
+
+.notch.expanded {
+  width: var(--notch-w-exp);
+  height: var(--notch-h-exp);
+  border-radius: 0 0 var(--notch-r-exp) var(--notch-r-exp);
+  cursor: default;
+}
+
+/* Orejas cóncavas con continuidad G2 */
+.notch-ear {
+  position: absolute;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  fill: var(--c-obsidian);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.notch-ear.left {
+  left: -14px;
+}
+
+.notch-ear.right {
+  right: -14px;
+}
+
+/* Línea de descarga integrada al chasis */
+.notch-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1.5px;
+  width: 0%;
+  background: var(--c-text-bright);
+  transition: width 0.25s linear;
+  z-index: 25;
+  opacity: 0;
+}
+
+.notch.downloading .notch-progress-bar {
+  opacity: 1;
+}
+
+/* ============================================================
+   VISTAS INTERNAS Y COREOGRAFÍA
+   ============================================================ */
+.view {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+  transition: opacity 0.2s ease, transform 0.25s var(--spring-expand);
+}
+
+.view.hidden {
+  display: none !important;
+}
+
+/* ============================================================
+   1. VISTA COMPACTA
+   ============================================================ */
+.view-compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+}
+
+.compact-row {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.compact-row.hidden {
+  display: none !important;
+}
+
+.notch-col {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  /* Cada lado respeta el hueco central de CUCO */
+  max-width: calc(50% - var(--cuco-slot, 0px) / 2);
+}
+
+.text-time {
+  font-family: var(--font-display);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--c-text-bright);
+}
+
+/* Píldora de clima minimalista */
+.compact-weather-pill {
+  display: flex;
+  align-items: center;
+  gap: 3.5px;
+  padding: 1.5px 6px;
+  border-radius: 6px;
+  background: var(--c-elevated);
+  border: 1px solid var(--c-border-subtle);
+}
+
+.weather-glyph {
+  font-size: 10.5px;
+  display: flex;
+  align-items: center;
+}
+
+.weather-temp {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.text-battery {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.battery-icon {
+  display: flex;
+  align-items: center;
+  color: var(--c-text-muted);
+}
+
+/* Sub-vista Compacta de Música */
+.media-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: calc(50% - var(--cuco-slot, 0px) / 2);
+}
+
+.media-thumb-mini {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.media-thumb-mini.spinning {
+  animation: spin 6s linear infinite;
+}
+
+.mini-media-wrapper {
+  max-width: 145px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Micro-indicador acústico orgánico */
+.acoustic-pulse {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 10px;
+}
+
+.acoustic-bar {
+  width: 1.5px;
+  background: var(--theme-track-fill);
+  border-radius: 1px;
+  height: 3px;
+  transition: height 0.15s ease, background 0.4s ease;
+}
+
+.acoustic-pulse.animating .acoustic-bar:nth-child(1) { animation: ac-bounce 0.42s ease-in-out infinite alternate; }
+.acoustic-pulse.animating .acoustic-bar:nth-child(2) { animation: ac-bounce 0.33s ease-in-out infinite alternate 0.08s; }
+.acoustic-pulse.animating .acoustic-bar:nth-child(3) { animation: ac-bounce 0.48s ease-in-out infinite alternate 0.16s; }
+
+@keyframes ac-bounce {
+  from { height: 2.5px; }
+  to { height: 10px; }
+}
+
+/* Descargas compactas */
+.download-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(50% - var(--cuco-slot, 0px) / 2);
+  overflow: hidden;
+}
+
+.download-arrow-anim {
+  color: var(--c-text-bright);
+  display: flex;
+  align-items: center;
+}
+
+.marquee-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  position: relative;
+}
+
+.marquee-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--theme-text-bright);
+  text-shadow: var(--theme-text-shadow);
+  display: inline-block;
+  white-space: nowrap;
+  transition: color 0.4s ease;
+}
+
+.marquee-text.scrolling {
+  animation: marqueeScroll 9s linear infinite;
+}
+
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(-55%); }
+  60% { transform: translateX(-55%); }
+  100% { transform: translateX(0); }
+}
+
+.download-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.dl-percent {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--c-text-bright);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.dl-speed {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--c-text-muted);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+/* ============================================================
+   2. VISTA NOTIFICACIÓN (EVENTOS USB NATIVOS)
+   ============================================================ */
+.view-notification {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+}
+
+.notif-content {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  /* Deja sitio a CUCO, que se desplaza a la derecha durante el aviso */
+  max-width: calc(100% - 64px);
+  min-width: 0;
+}
+
+.notif-icon-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--c-elevated);
+  border: 1px solid var(--c-border-hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-text-bright);
+  flex-shrink: 0;
+}
+
+.notch.notification-mode.disconnected .notif-icon-badge {
+  color: var(--c-accent-amber);
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.notif-details {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.notif-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-bright);
+  line-height: 1.2;
+}
+
+.notif-subtitle {
+  font-size: 9.5px;
+  color: var(--c-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.notif-status-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--c-accent-success);
+}
+
+.notch.notification-mode.disconnected .notif-status-dot {
+  background: var(--c-accent-amber);
+}
+
+/* ============================================================
+   3. VISTA EXPANDIDA (ARQUITECTURA DE CAPAS)
+   ============================================================ */
+.view-expanded {
+  padding: 10px 16px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+/* Header Contextual sin aspecto de navegador */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 26px;
+  border-bottom: 1px solid var(--theme-border-subtle);
+  transition: border-color 0.4s ease;
+}
+
+.header-status-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--theme-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.4s ease;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--theme-text-muted);
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  transition: all 0.15s ease, color 0.4s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:hover {
+  color: var(--c-text-bright);
+  background: var(--c-elevated-hover);
+}
+
+.icon-btn.close:hover {
+  color: #EF4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* ============================================================
+   PÁGINA PRINCIPAL: MÚSICA & RANURA MECÁNICA DE VINILO
+   ============================================================ */
+.expanded-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+/* Máscara: el disco queda hundido hacia arriba; solo se ve su mitad inferior.
+   --disc-d es el diámetro; la altura visible es la mitad.
+   clip-path enmascara estrictamente arriba de 0 para simular la ranura,
+   pero deja holgura en laterales e inferior para que la sombra se desvanezca
+   de forma 100% circular, difusa y suave sin cortes cuadrados. */
+.vinyl-sleeve-pocket {
+  --disc-d: 200px;
+  position: relative;
+  width: var(--disc-d);
+  height: calc(var(--disc-d) / 2);
+  clip-path: inset(0 -100px -100px -100px);
+  overflow: visible;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+/* Centro del disco = borde superior de la máscara (top = -radio).
+   La sombra circular y suave reside aquí para que sea estática y no oscile al girar. */
+.vinyl-disc-host {
+  width: var(--disc-d);
+  height: var(--disc-d);
+  border-radius: 50%;
+  position: absolute;
+  top: calc(var(--disc-d) / -2);
+  left: 50%;
+  margin-left: calc(var(--disc-d) / -2);
+  transform: translateY(-60px);
+  opacity: 0;
+  transition: transform var(--t-motion) var(--spring-vinyl), opacity 0.25s ease;
+  box-shadow:
+    0 16px 36px -4px rgba(0, 0, 0, 0.75),
+    0 8px 18px -2px rgba(0, 0, 0, 0.45);
+}
+
+.vinyl-disc-host.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* La portada es la superficie completa del disco, sin bordes toscos */
+.vinyl-disc {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #18181b;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  position: relative;
+  animation: spin 6.7s linear infinite;
+  animation-play-state: paused;
+}
+
+/* Gira a 33 RPM solo mientras suena (JS alterna .spinning) */
+.vinyl-disc.spinning {
+  animation-play-state: running;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Surcos y eje siguen sin pintarse; el brillo sí, para que el giro se lea */
+.vinyl-grooves,
+.vinyl-spindle {
+  display: none;
+}
+
+.vinyl-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 45deg,
+    transparent 0deg,
+    rgba(255, 255, 255, 0.14) 45deg,
+    transparent 100deg,
+    rgba(255, 255, 255, 0.14) 225deg,
+    transparent 280deg
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+.vinyl-label {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: none;
+  overflow: hidden;
+  position: relative;
+  background: #2a2a2e;
+}
+
+.vinyl-label img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Metadatos de la Pista */
+.media-meta-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 4px;
+}
+
+.media-artist {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--theme-text-sub);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: var(--theme-text-shadow);
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+
+.media-title {
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--theme-text-bright);
+  margin-top: 1px;
+  max-width: 330px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: var(--theme-text-shadow);
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+
+/* Scrubber / Barra de Progreso Fina */
+.media-timeline {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 4px;
+}
+
+.timeline-track {
+  width: 100%;
+  height: 2.5px;
+  background: var(--theme-track-bg);
+  border-radius: 1px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.4s ease;
+}
+
+.timeline-fill {
+  height: 100%;
+  background: var(--theme-track-fill);
+  border-radius: 1px;
+  transition: width 0.12s linear, background 0.4s ease;
+}
+
+.timeline-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9.5px;
+  color: var(--theme-text-muted);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  transition: color 0.4s ease;
+}
+
+/* Controles de Reproducción Minimalistas */
+.media-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 2px;
+}
+
+.ctrl-btn {
+  background: transparent;
+  border: none;
+  color: var(--theme-ctrl-color);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease, color 0.4s ease;
+}
+
+.ctrl-btn:hover {
+  color: var(--theme-text-bright);
+  background: var(--c-elevated-hover);
+}
+
+.ctrl-btn:active {
+  transform: scale(0.92);
+}
+
+.ctrl-btn.play-pause {
+  width: 34px;
+  height: 34px;
+  background: var(--theme-ctrl-play-bg);
+  border: 1px solid var(--theme-ctrl-play-border);
+  color: var(--theme-text-bright);
+  transition: all 0.15s ease, background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+}
+
+.ctrl-btn.play-pause:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ============================================================
+   PIE DE TELEMETRÍA (CLIMA & DESCARGAS DISCRETAS)
+   ============================================================ */
+.telemetry-footer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid var(--theme-border-subtle);
+  margin-top: 6px;
+  transition: border-color 0.4s ease;
+}
+
+.telemetry-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  color: var(--theme-text-sub);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s ease;
+}
+
+.telemetry-pill.secondary {
+  color: var(--theme-text-muted);
+  font-size: 10px;
+  transition: color 0.4s ease;
+}
+
+/* Accesibilidad: Reducción de Movimiento */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

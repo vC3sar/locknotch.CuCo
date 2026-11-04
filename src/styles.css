@@ -1,0 +1,489 @@
+:root {
+  --font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  
+  /* Paleta Oscura Premium */
+  --bg-island: #030305;
+  --border-island: rgba(255, 255, 255, 0.14);
+  --border-inner: rgba(255, 255, 255, 0.08);
+  
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.70);
+  --text-tertiary: rgba(255, 255, 255, 0.40);
+  
+  --accent-cyan: #00f2fe;
+  --accent-green: #10b981;
+  --accent-gradient: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  --progress-gradient: linear-gradient(90deg, #00f2fe 0%, #38ef7d 100%);
+  
+  /* Curvas físicas tipo Apple Spring */
+  --spring-easing: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --fluid-easing: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-speed: 0.4s;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent !important;
+  font-family: var(--font-family);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Raíz fija en la pantalla */
+#notch-root {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  pointer-events: none; /* Clics atraviesan hacia Windows excepto sobre el notch */
+}
+
+/* ============================================================
+   EL NOTCH / ISLA DINÁMICA
+   ============================================================ */
+.notch {
+  position: relative;
+  pointer-events: auto; /* El notch sí captura eventos de ratón */
+  background: var(--bg-island);
+  border: 1px solid var(--border-island);
+  border-top: none; /* Fusionado perfectamente al marco superior */
+  cursor: pointer;
+  z-index: 100;
+  
+  /* Sombra volumétrica de profundidad */
+  box-shadow: 
+    0 12px 36px rgba(0, 0, 0, 0.75),
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(0, 242, 254, 0.15); /* Sutil aura cian */
+
+  /* Animación física de dimensiones y esquinas */
+  transition: 
+    width var(--transition-speed) var(--spring-easing),
+    height var(--transition-speed) var(--spring-easing),
+    border-radius var(--transition-speed) var(--spring-easing),
+    box-shadow var(--transition-speed) var(--fluid-easing);
+  
+  will-change: width, height, border-radius;
+  overflow: hidden;
+}
+
+/* Brillo superior tipo reflejo de cristal */
+.notch::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ESTADO COMPACTO */
+.notch.compact {
+  width: 215px;
+  height: 35px;
+  border-radius: 0 0 18px 18px;
+}
+
+/* ESTADO COMPACTO EN DESCARGA (Ligeramente más ancho y dinámico) */
+.notch.compact.downloading {
+  width: 275px;
+  height: 35px;
+  border-radius: 0 0 18px 18px;
+  box-shadow: 
+    0 12px 36px rgba(0, 0, 0, 0.75),
+    0 0 25px rgba(0, 242, 254, 0.35);
+}
+
+/* ESTADO EXPANDIDO */
+.notch.expanded {
+  width: 420px;
+  height: 180px;
+  border-radius: 0 0 28px 28px;
+  cursor: default;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.85),
+    0 6px 16px rgba(0, 0, 0, 0.6),
+    0 0 35px rgba(0, 242, 254, 0.25);
+}
+
+/* ============================================================
+   OREJAS LÍQUIDAS CÓNCAVAS (MacBook / iPhone Notch style)
+   ============================================================ */
+.notch-ear {
+  position: absolute;
+  top: 0;
+  width: 12px;
+  height: 12px;
+  fill: var(--bg-island);
+  pointer-events: none;
+  z-index: 10;
+  transition: opacity 0.2s ease;
+}
+
+.notch-ear.left {
+  left: -12px;
+}
+
+.notch-ear.right {
+  right: -12px;
+}
+
+/* ============================================================
+   BARRA DE PROGRESO INTEGRADA AL BORDE INFERIOR DEL NOTCH
+   ============================================================ */
+.notch-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--progress-gradient);
+  box-shadow: 0 0 8px rgba(0, 242, 254, 0.8);
+  transition: width 0.3s var(--fluid-easing), opacity 0.3s ease;
+  z-index: 15;
+  opacity: 0;
+}
+
+.notch.downloading .notch-progress-bar {
+  opacity: 1;
+}
+
+/* ============================================================
+   VISTAS INTERNAS (COMPACTA Y EXPANDIDA)
+   ============================================================ */
+.view {
+  width: 100%;
+  height: 100%;
+  transition: opacity 0.25s ease, transform 0.25s var(--fluid-easing);
+}
+
+.view.hidden {
+  display: none !important;
+}
+
+/* --- VISTA COMPACTA --- */
+.view-compact {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+}
+
+.compact-row {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: fadeIn 0.3s ease;
+}
+
+.compact-row.hidden {
+  display: none !important;
+}
+
+.notch-col {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.text-time {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--text-primary);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+  display: inline-block;
+}
+
+.text-battery {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.battery-icon {
+  font-size: 11px;
+  color: var(--accent-cyan);
+}
+
+/* Estilos de descarga en vista compacta */
+.download-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 62%;
+  overflow: hidden;
+}
+
+.download-arrow-anim {
+  color: var(--accent-cyan);
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-block;
+  animation: bounceDown 1.2s infinite ease-in-out;
+}
+
+@keyframes bounceDown {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
+}
+
+.marquee-wrapper {
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  position: relative;
+  max-width: 120px;
+}
+
+.marquee-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  display: inline-block;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* Animación de deslizamiento suave si el nombre es largo */
+.marquee-text.scrolling {
+  animation: marqueeScroll 8s linear infinite;
+}
+
+@keyframes marqueeScroll {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(-60%); }
+  60% { transform: translateX(-60%); }
+  100% { transform: translateX(0); }
+}
+
+.download-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.dl-percent {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  line-height: 1.1;
+}
+
+.dl-speed {
+  font-size: 9.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  line-height: 1.1;
+}
+
+/* --- VISTA EXPANDIDA --- */
+.view-expanded {
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: scaleFadeIn 0.35s var(--spring-easing);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-inner);
+}
+
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.card-icon {
+  font-size: 14px;
+  color: var(--accent-cyan);
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+  color: #ff5555;
+  background: rgba(255, 85, 85, 0.15);
+}
+
+/* Tarjeta de descarga expandida */
+.download-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-inner);
+  border-radius: 14px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dl-card-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dl-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: rgba(0, 242, 254, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.dl-card-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.dl-card-filename {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dl-card-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 1px;
+}
+
+.dl-badge {
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  color: var(--accent-cyan);
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.dl-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.10);
+  overflow: hidden;
+}
+
+.dl-fill {
+  height: 100%;
+  background: var(--progress-gradient);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+  transition: width 0.3s ease;
+}
+
+.dl-bytes-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: var(--text-tertiary);
+}
+
+/* Botones de acción */
+.quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 6px 12px;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  background: rgba(0, 242, 254, 0.12);
+  color: var(--text-primary);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.action-btn:hover {
+  background: rgba(0, 242, 254, 0.22);
+  border-color: rgba(0, 242, 254, 0.6);
+}
+
+.action-btn.secondary {
+  border-color: var(--border-inner);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+}
+
+.action-btn.secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+}
+
+/* ============================================================
+   KEYFRAMES DE ANIMACIONES
+   ============================================================ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleFadeIn {
+  from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}

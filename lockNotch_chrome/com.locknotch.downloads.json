@@ -1,9 +1,0 @@
-{
-  "name": "com.locknotch.downloads",
-  "description": "LockNotch Native Messaging Host",
-  "path": "C:\\Users\\vCesar\\OneDrive\\Escritorio\\Proyectos\\LockNotch\\app\\src-tauri\\target\\release\\locknotch.exe",
-  "type": "stdio",
-  "allowed_origins": [
-    "chrome-extension://kfmdodbaimfnbghpklkhlcgleffjikge/"
-  ]
-}
