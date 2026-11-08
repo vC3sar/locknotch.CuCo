@@ -15,7 +15,7 @@ class Program
     private static string _lastTitle = "";
     private static string _lastArtist = "";
     private static bool _lastPlaying = false;
-    private static int _lastPos = -1;
+    private static double _lastPos = -1;
     private static string _assetsDir = "";
 
     static async Task Main(string[] args)
@@ -73,10 +73,11 @@ class Program
                 }
             });
 
-            // Polling de sincronización periódica
+            // Polling de sincronización periódica en tiempo real (250ms si reproduce, 1000ms en reposo)
             while (true)
             {
-                await Task.Delay(1000);
+                int delayMs = _lastPlaying ? 250 : 1000;
+                await Task.Delay(delayMs);
                 await PublishStateAsync(periodic: true);
             }
         }
@@ -143,8 +144,22 @@ class Program
                 return;
             }
 
-            int pos = timeline != null ? (int)timeline.Position.TotalSeconds : 0;
-            int dur = timeline != null ? (int)timeline.EndTime.TotalSeconds : 0;
+            double dur = timeline != null ? timeline.EndTime.TotalSeconds : 0;
+            double pos = 0;
+            if (timeline != null)
+            {
+                pos = timeline.Position.TotalSeconds;
+                // GSMTC registra LastUpdatedTime; si reproduce, sumamos el tiempo transcurrido exacto
+                if (isPlaying && timeline.LastUpdatedTime != default)
+                {
+                    var elapsed = (DateTimeOffset.UtcNow - timeline.LastUpdatedTime).TotalSeconds;
+                    if (elapsed > 0 && elapsed < 60)
+                    {
+                        pos += elapsed;
+                    }
+                }
+                if (dur > 0 && pos > dur) pos = dur;
+            }
             string finalArtist = !string.IsNullOrEmpty(artist) ? artist : album;
 
             // Extraer carátula si cambió la canción
@@ -189,8 +204,8 @@ class Program
                 isPlaying = isPlaying,
                 title = title,
                 artist = finalArtist,
-                position = pos,
-                duration = dur,
+                position = Math.Round(pos, 2),
+                duration = Math.Round(dur, 2),
                 thumbnail = thumbUrl,
                 appId = sourceAppId
             });

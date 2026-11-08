@@ -43,26 +43,55 @@
               </div>
             </div>
             <div class="notch-col right">
-              <span id="compact-battery" class="text-battery">100%</span>
-              <span id="compact-battery-icon" class="battery-icon">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="10" x="2" y="7" rx="2" ry="2"/><line x1="22" x2="22" y1="11" y2="13"/></svg>
-              </span>
+              <div id="compact-battery-pill" class="battery-capsule" title="Batería">
+                <div id="compact-battery-fill" class="battery-fill-level" style="width: 100%;"></div>
+                <span id="compact-battery" class="battery-pct-label">100%</span>
+              </div>
             </div>
           </div>
 
-          <!-- Reproducción Activa: Carátula viva y pulso acústico -->
+          <!-- Reproducción Activa: Carátula viva, marquee y letra sincronizada -->
           <div id="compact-media" class="compact-row hidden">
             <div class="notch-col left media-left">
               <img id="compact-media-art" class="media-thumb-mini" src="assets/album_art.jpg" alt="Carátula" />
               <div class="marquee-wrapper mini-media-wrapper">
                 <span id="compact-media-title" class="marquee-text">Sin reproducción</span>
               </div>
+              <!-- Modo TV cuando el marquee está oculto: Hora y Clima -->
+              <div id="compact-tv-weather-time" class="tv-idle-time-weather hidden">
+                <span id="tv-time" class="text-time live-time">--:--</span>
+                <div id="tv-weather-pill" class="compact-weather-pill" title="Clima">
+                  <span class="weather-glyph">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                  </span>
+                  <span id="tv-weather-temp" class="weather-temp live-weather-temp">--°</span>
+                </div>
+              </div>
             </div>
-            <div class="notch-col right">
+            <div class="notch-col right media-right">
+              <!-- Letra sincronizada en tiempo real (solo plataformas musicales) -->
+              <div id="compact-lyrics-wrap" class="compact-lyrics-wrap hidden" title="Letra">
+                <span id="compact-lyrics-text" class="compact-lyrics-text">♪</span>
+              </div>
+              <!-- Modo TV cuando el marquee está oculto: Batería -->
+              <div id="compact-tv-battery" class="tv-idle-battery hidden">
+                <div id="tv-battery-pill" class="battery-capsule" title="Batería">
+                  <div id="tv-battery-fill" class="battery-fill-level" style="width: 100%;"></div>
+                  <span id="tv-battery" class="battery-pct-label live-battery">100%</span>
+                </div>
+              </div>
               <div id="compact-visualizer" class="acoustic-pulse">
                 <div class="acoustic-bar"></div>
                 <div class="acoustic-bar"></div>
                 <div class="acoustic-bar"></div>
+              </div>
+            </div>
+
+            <!-- Modo TV: Marquee a todo lo ancho que pasa por debajo de CUCO -->
+            <div id="tv-marquee-track" class="tv-marquee-track hidden">
+              <div class="tv-marquee-inner">
+                <span id="tv-marquee-text" class="tv-marquee-text"></span>
+                <span id="tv-marquee-dup" class="tv-marquee-text" aria-hidden="true"></span>
               </div>
             </div>
           </div>
@@ -111,6 +140,9 @@
               <span id="exp-status-text">Audio del Sistema</span>
             </div>
             <div class="header-actions">
+              <button id="btn-open-settings" class="icon-btn" title="Configuración">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
               <button id="btn-collapse" class="icon-btn" title="Colapsar (Esc)">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
               </button>
@@ -138,7 +170,12 @@
 
             <div class="media-meta-card">
               <span id="exp-media-artist" class="media-artist">Sin reproducción</span>
-              <span id="exp-media-title" class="media-title">Inicia Spotify o tu navegador</span>
+              <div class="exp-title-marquee-wrap">
+                <span id="exp-media-title" class="media-title">Inicia Spotify o tu navegador</span>
+              </div>
+              <div id="exp-lyrics-wrap" class="exp-lyrics-wrap hidden">
+                <span id="exp-lyrics-text" class="exp-lyrics-text">♪</span>
+              </div>
             </div>
 
             <!-- Scrubber milimétrico -->

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Configuración de LockNotch</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="window-container">
+    
+    <!-- Barra Superior de la Ventana (Arrastrable) -->
+    <header class="window-header">
+      <div class="header-brand">
+        <div class="brand-pill-icon">
+          <div class="brand-notch-shape"></div>
+          <div class="brand-cuco-dot"></div>
+        </div>
+        <span class="brand-title">LockNotch</span>
+        <span class="brand-version-pill">v2.1</span>
+      </div>
+      <div class="window-controls">
+        <button id="btn-win-minimize" class="control-btn minimize" title="Minimizar">
+          <svg width="10" height="1" viewBox="0 0 10 1"><rect width="10" height="1" fill="currentColor"/></svg>
+        </button>
+        <button id="btn-win-close" class="control-btn close" title="Cerrar">
+          <svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8m0-8L1 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Cuerpo Principal con Panel Lateral a la Izquierda -->
+    <main class="window-body">
+      
+      <!-- Panel Lateral Izquierdo -->
+      <aside class="sidebar">
+        <nav class="nav-menu">
+          <button class="nav-item active" data-tab="general">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </span>
+            <span class="nav-label">General</span>
+          </button>
+
+          <button class="nav-item" data-tab="appearance">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/><circle cx="12" cy="12" r="4"/></svg>
+            </span>
+            <span class="nav-label">Apariencia</span>
+          </button>
+
+          <button class="nav-item" data-tab="cuco">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 0-5 5v3a5 5 0 0 0 10 0V7a5 5 0 0 0-5-5z"/><path d="M7 10v1a5 5 0 0 0 10 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/><circle cx="10" cy="7" r="1" fill="currentColor"/><circle cx="14" cy="7" r="1" fill="currentColor"/></svg>
+            </span>
+            <span class="nav-label">Mascota CUCO</span>
+            <span class="nav-badge">Live</span>
+          </button>
+
+          <button class="nav-item" data-tab="multimedia">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </span>
+            <span class="nav-label">Música & TV</span>
+          </button>
+
+          <button class="nav-item" data-tab="devices">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/><path d="M12 3v6"/><path d="m16 7 2-2"/><path d="m8 7-2-2"/></svg>
+            </span>
+            <span class="nav-label">Hardware USB</span>
+          </button>
+
+          <button class="nav-item" data-tab="diagnostics">
+            <span class="nav-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </span>
+            <span class="nav-label">Diagnóstico</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="system-status-pill">
+            <span class="status-pulse-dot"></span>
+            <span class="status-text">Servicios Activos</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Panel de Contenido Derecho -->
+      <section class="content-panel">
+        
+        <!-- ================= 1. TAB GENERAL ================= -->
+        <div id="tab-general" class="tab-pane active">
+          <div class="pane-header">
+            <h2 class="pane-title">Configuración General</h2>
+            <p class="pane-desc">Comportamiento básico de la isla flotante y el sistema de inicio.</p>
+          </div>
+
+          <div class="settings-group">
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Iniciar con Windows</span>
+                <span class="setting-hint">Ejecuta LockNotch silenciosamente en la bandeja al encender el equipo.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-autostart">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Colapsar con Escape (Esc)</span>
+                <span class="setting-hint">Permite cerrar la vista expandida presionando la tecla Escape.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-esc-collapse" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Mantener Siempre al Frente</span>
+                <span class="setting-hint">Permite que el notch permanezca visible sobre ventanas de pantalla completa.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-always-on-top" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Notificaciones en Bandeja (Tray Bar)</span>
+                <span class="setting-hint">Mantener el icono accesible en la barra de tareas de Windows.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-tray-enabled" checked disabled>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= 2. TAB APARIENCIA ================= -->
+        <div id="tab-appearance" class="tab-pane">
+          <div class="pane-header">
+            <h2 class="pane-title">Apariencia & Diseño</h2>
+            <p class="pane-desc">Personalización visual del notch, colores dinámicos y la batería.</p>
+          </div>
+
+          <div class="settings-group">
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Auto-adaptación de Colores</span>
+                <span class="setting-hint">Adapta el contraste y texto al color de fondo de la canción o video.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-cover-tint" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Batería con Porcentaje Integrado</span>
+                <span class="setting-hint">Cápsula de batería estilo iOS con número y nivel de carga dentro.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-battery-pill" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Física Elástica (Spring Inertia)</span>
+                <span class="setting-hint">Animaciones orgánicas con curvas cúbicas ultra fluidas a 60 FPS.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-fluid-anim" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Borde del Notch</span>
+                <span class="setting-hint">Estilo del borde que define la silueta de la isla dinámica.</span>
+              </div>
+              <select id="set-border-style" class="select-input">
+                <option value="hairline" selected>Microscópico Hairline</option>
+                <option value="none">Sin Borde (Puro)</option>
+                <option value="subtle">Sutil con Brillo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= 3. TAB CUCO ================= -->
+        <div id="tab-cuco" class="tab-pane">
+          <div class="pane-header">
+            <h2 class="pane-title">Mascota CUCO</h2>
+            <p class="pane-desc">Ajustes de comportamiento, reacciones y animaciones de la mascota del notch.</p>
+          </div>
+
+          <div class="settings-group">
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Coreografías de Baile Alternadas</span>
+                <span class="setting-hint">5 bailes diferentes que se van intercalando rítmicamente al sonar música.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-cuco-dance" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Modo Viendo TV</span>
+                <span class="setting-hint">CUCO saca su mini televisor mientras reproduces videos en YouTube o navegador.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-cuco-tv" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Gesticulación de Conexión USB</span>
+                <span class="setting-hint">Camina a conectar el cable al suelo y jala con retroceso al desconectar.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-cuco-usb" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Dormir en Inactividad o Bloqueo</span>
+                <span class="setting-hint">Entra en reposo profundo con animación zZz cuando bloqueas la PC.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-cuco-sleep" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card action-card">
+              <div class="setting-info">
+                <span class="setting-name">Interactuar con CUCO</span>
+                <span class="setting-hint">Envía una señal para que salude o baile en este momento.</span>
+              </div>
+              <button id="btn-cuco-greet" class="btn-action">Saludar a CUCO</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= 4. TAB MÚSICA & TV ================= -->
+        <div id="tab-multimedia" class="tab-pane">
+          <div class="pane-header">
+            <h2 class="pane-title">Multimedia, Letras & TV</h2>
+            <p class="pane-desc">Sincronización en tiempo real con LRCLIB y ciclo de marquee para videos.</p>
+          </div>
+
+          <div class="settings-group">
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Letras Sincronizadas (LRCLIB)</span>
+                <span class="setting-hint">Consulta la letra frase por frase sincronizada con plataformas de música.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-lyrics-sync" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <!-- Slider de Compensación de Letras -->
+            <div class="setting-card slider-setting-card">
+              <div class="setting-info">
+                <div class="slider-title-row">
+                  <span class="setting-name">Compensación de Desfase de Letra</span>
+                  <span id="lyrics-offset-val" class="slider-badge">550 ms</span>
+                </div>
+                <span class="setting-hint">Tiempo predictivo para compensar el retardo de lectura de Windows GSMTC.</span>
+              </div>
+              <input type="range" id="set-lyrics-offset" min="0" max="1500" step="50" value="550" class="range-slider">
+            </div>
+
+            <!-- Ciclo Marquee Modo TV -->
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Ciclo Marquee Modo TV</span>
+                <span class="setting-hint">Alternancia entre el título del video y la Hora/Clima bajo CUCO.</span>
+              </div>
+              <div class="multi-inputs">
+                <div class="input-pill">
+                  <span class="pill-label">Visible:</span>
+                  <select id="set-tv-visible-min" class="select-inline">
+                    <option value="1" selected>1 min</option>
+                    <option value="2">2 min</option>
+                    <option value="3">3 min</option>
+                  </select>
+                </div>
+                <div class="input-pill">
+                  <span class="pill-label">Oculto:</span>
+                  <select id="set-tv-hidden-min" class="select-inline">
+                    <option value="5">5 min</option>
+                    <option value="8" selected>8 min</option>
+                    <option value="10">10 min</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Apps Musicales Soportadas</span>
+                <span class="setting-hint">Spotify, Apple Music, Mexlify, YouTube Music, Deezer, Tidal.</span>
+              </div>
+              <span class="status-chip success">Auto-detectado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= 5. TAB DISPOSITIVOS USB ================= -->
+        <div id="tab-devices" class="tab-pane">
+          <div class="pane-header">
+            <h2 class="pane-title">Dispositivos & Hardware</h2>
+            <p class="pane-desc">Notificaciones visuales de hardware en tiempo real con script WMI.</p>
+          </div>
+
+          <div class="settings-group">
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Avisos de Conexión USB</span>
+                <span class="setting-hint">Despliega el notch con animación cuando conectas un pendrive o periférico.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-usb-notif" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card">
+              <div class="setting-info">
+                <span class="setting-name">Avisos de Batería Baja</span>
+                <span class="setting-hint">Aviso visual en la isla cuando el nivel cae por debajo del 20%.</span>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="set-battery-alert" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-card action-card">
+              <div class="setting-info">
+                <span class="setting-name">Prueba de Animación de Cable</span>
+                <span class="setting-hint">Simula la animación física de CUCO conectando o desconectando un cable.</span>
+              </div>
+              <div class="btn-group">
+                <button id="btn-test-plug" class="btn-action">Conectar</button>
+                <button id="btn-test-unplug" class="btn-action secondary">Desconectar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ================= 6. TAB DIAGNÓSTICO ================= -->
+        <div id="tab-diagnostics" class="tab-pane">
+          <div class="pane-header">
+            <h2 class="pane-title">Diagnóstico & Sistema</h2>
+            <p class="pane-desc">Estado de los puentes nativos y procesos en segundo plano.</p>
+          </div>
+
+          <div class="settings-group">
+            <div class="diagnostics-grid">
+              <div class="diag-card">
+                <div class="diag-header">
+                  <span class="diag-dot active"></span>
+                  <span class="diag-name">Servidor HTTP Local</span>
+                </div>
+                <span class="diag-val">127.0.0.1:4040</span>
+                <span class="diag-detail">Descargas de Chrome y API de medios</span>
+              </div>
+
+              <div class="diag-card">
+                <div class="diag-header">
+                  <span class="diag-dot active"></span>
+                  <span class="diag-name">Puente Windows GSMTC</span>
+                </div>
+                <span class="diag-val">.NET 8 Service</span>
+                <span class="diag-detail">Lectura en tiempo real de Spotify y navegadores</span>
+              </div>
+
+              <div class="diag-card">
+                <div class="diag-header">
+                  <span class="diag-dot active"></span>
+                  <span class="diag-name">Monitor WMI USB</span>
+                </div>
+                <span class="diag-val">PowerShell Daemon</span>
+                <span class="diag-detail">Detección de unidades de almacenamiento</span>
+              </div>
+
+              <div class="diag-card">
+                <div class="diag-header">
+                  <span class="diag-dot active"></span>
+                  <span class="diag-name">Clima en Vivo</span>
+                </div>
+                <span class="diag-val">Open-Meteo API</span>
+                <span class="diag-detail">Temperatura y pronóstico ambiental</span>
+              </div>
+            </div>
+
+            <div class="setting-card action-card">
+              <div class="setting-info">
+                <span class="setting-name">Reiniciar Servicios</span>
+                <span class="setting-hint">Reinicia el puente de medios y el monitor USB si notas algún bloqueo.</span>
+              </div>
+              <button id="btn-restart-services" class="btn-action">Reiniciar</button>
+            </div>
+
+            <div class="app-info-footer">
+              <div class="app-credits">
+                <strong>LockNotch v2.1.0</strong> • Dynamic Island para Windows 11<br>
+                Diseño Obsidian Minimalist • Cuco Pet Engine
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
+

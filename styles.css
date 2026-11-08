@@ -12,7 +12,7 @@
   --notch-h-idle: 34px;
   --notch-r-idle: 17px;
 
-  --notch-w-media: 308px;
+  --notch-w-media: 444px;
   --notch-h-media: 34px;
   --notch-r-media: 17px;
 
@@ -99,9 +99,9 @@ html, body {
   overflow: hidden;
 
   /* Borde lateral e inferior microscópico que muere en la parte superior */
-  border-left: 1px solid var(--c-border-hairline);
-  border-right: 1px solid var(--c-border-hairline);
-  border-bottom: 1px solid var(--c-border-hairline);
+  border-left: 1px solid var(--theme-border-subtle);
+  border-right: 1px solid var(--theme-border-subtle);
+  border-bottom: 1px solid var(--theme-border-subtle);
   border-top: none;
 
   /* Sombra gravitatoria proyectada hacia abajo exclusivamente */
@@ -116,6 +116,40 @@ html, body {
     box-shadow var(--t-motion) ease;
 
   will-change: width, height, border-radius;
+}
+
+/* Variaciones de estilo configurables desde el panel de ajustes */
+.notch.border-none {
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+
+.notch.border-subtle {
+  border-left: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.22) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 16px 38px rgba(0, 0, 0, 0.95), 0 0 14px rgba(255, 255, 255, 0.16) !important;
+}
+
+.notch.no-fluid-anim,
+.notch.no-fluid-anim * {
+  transition-duration: 0.001s !important;
+  animation-duration: 0.001s !important;
+}
+
+.notch.classic-battery .battery-capsule {
+  width: 22px;
+  height: 12px;
+  padding: 0;
+}
+
+.notch.classic-battery .battery-pct-label {
+  position: absolute;
+  right: calc(100% + 5px);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--theme-text-sub);
 }
 
 /* Tinte degradado extraído de la portada (solo expandido con música) */
@@ -149,6 +183,13 @@ html, body {
   width: var(--notch-w-media);
   height: var(--notch-h-media);
   border-radius: 0 0 var(--notch-r-media) var(--notch-r-media);
+}
+
+.notch.compact.playing-media.is-tv-mode,
+.notch.compact.is-tv-mode {
+  width: var(--notch-w-idle) !important;
+  height: var(--notch-h-idle) !important;
+  border-radius: 0 0 var(--notch-r-idle) var(--notch-r-idle) !important;
 }
 
 .notch.compact.downloading {
@@ -262,7 +303,9 @@ html, body {
   font-size: 12.5px;
   font-weight: 600;
   letter-spacing: -0.015em;
-  color: var(--c-text-bright);
+  color: var(--theme-text-bright);
+  text-shadow: var(--theme-text-shadow);
+  transition: color 0.4s ease, text-shadow 0.4s ease;
 }
 
 /* Píldora de clima minimalista */
@@ -272,41 +315,120 @@ html, body {
   gap: 3.5px;
   padding: 1.5px 6px;
   border-radius: 6px;
-  background: var(--c-elevated);
-  border: 1px solid var(--c-border-subtle);
+  background: var(--theme-ctrl-play-bg);
+  border: 1px solid var(--theme-border-subtle);
+  transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 .weather-glyph {
   font-size: 10.5px;
   display: flex;
   align-items: center;
+  color: var(--theme-text-sub);
+  transition: color 0.4s ease;
 }
 
 .weather-temp {
   font-size: 11px;
   font-weight: 500;
-  color: var(--c-text-secondary);
+  color: var(--theme-text-sub);
+  text-shadow: var(--theme-text-shadow);
   font-variant-numeric: tabular-nums;
+  transition: color 0.4s ease, text-shadow 0.4s ease;
 }
 
-.text-battery {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--c-text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-
-.battery-icon {
+/* Cápsula de Batería estilo iOS con porcentaje integrado */
+.battery-capsule {
+  position: relative;
+  width: 32px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1.2px solid var(--theme-text-sub);
+  background: var(--theme-ctrl-play-bg);
   display: flex;
   align-items: center;
-  color: var(--c-text-muted);
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 1px;
+  margin-right: 4px;
+  transition: border-color 0.4s ease, background 0.4s ease;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+/* Terminal / polo positivo de la batería a la derecha */
+.battery-capsule::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.5px;
+  height: 5px;
+  border-radius: 0 1px 1px 0;
+  background: var(--theme-text-sub);
+  transition: background 0.4s ease;
+}
+
+/* Nivel de relleno dinámico */
+.battery-fill-level {
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  bottom: 1px;
+  border-radius: 2px;
+  background: var(--theme-track-fill);
+  opacity: 0.35;
+  transition: width 0.35s var(--spring-expand), background 0.35s ease, opacity 0.35s ease;
+  pointer-events: none;
+  max-width: calc(100% - 2px);
+  z-index: 1;
+}
+
+/* Estado: Cargando (Verde esmeralda translúcido) */
+.battery-capsule.is-charging .battery-fill-level {
+  background: #22C55E;
+  opacity: 0.85;
+}
+
+/* Estado: Batería baja (< 20%) */
+.battery-capsule.is-low:not(.is-charging) .battery-fill-level {
+  background: #EF4444;
+  opacity: 0.85;
+}
+
+/* Etiqueta de porcentaje centrada dentro de la cápsula */
+.battery-pct-label {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--theme-text-bright);
+  text-shadow: var(--theme-text-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5px;
+  line-height: 1;
+  pointer-events: none;
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+
+/* Icono relámpago cuando está cargando dentro de la batería */
+.battery-bolt-icon {
+  width: 6.5px;
+  height: 6.5px;
+  fill: currentColor;
+  flex-shrink: 0;
 }
 
 /* Sub-vista Compacta de Música */
 .media-left {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 0;
   max-width: calc(50% - var(--cuco-slot, 0px) / 2);
 }
 
@@ -315,8 +437,10 @@ html, body {
   height: 18px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--theme-border-subtle);
   flex-shrink: 0;
+  margin-right: 12px;
+  transition: border-color 0.4s ease;
 }
 
 .media-thumb-mini.spinning {
@@ -324,11 +448,77 @@ html, body {
 }
 
 .mini-media-wrapper {
-  max-width: 145px;
+  max-width: 165px;
   min-width: 0;
   flex: 1 1 auto;
   overflow: hidden;
   white-space: nowrap;
+  position: relative;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 4%, #000 96%, transparent 100%);
+}
+
+.media-right {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  justify-content: flex-end;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: calc(50% - var(--cuco-slot, 0px) / 2);
+}
+
+/* Letra sincronizada en modo compacto: aprovecha todo el ancho del ala derecha sin bugear la terminación */
+.compact-lyrics-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  padding-right: 4px;
+}
+
+.compact-lyrics-wrap.is-scrolling {
+  justify-content: flex-start;
+  mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 14px), transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 calc(100% - 14px), transparent 100%);
+}
+
+.compact-lyrics-wrap.hidden {
+  display: none !important;
+}
+
+.compact-lyrics-text {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--theme-text-sub);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  display: inline-block;
+  will-change: transform, opacity;
+  transition: opacity 0.22s ease, color 0.4s ease;
+  text-shadow: var(--theme-text-shadow);
+}
+
+.compact-lyrics-text.scrolling-lyrics {
+  animation: lyricsMarquee 6s cubic-bezier(0.37, 0, 0.63, 1) infinite alternate;
+}
+
+.compact-lyrics-text.phrase-change {
+  opacity: 0;
+}
+
+@keyframes lyricsMarquee {
+  0%, 20% {
+    transform: translateX(0);
+  }
+  80%, 100% {
+    transform: translateX(var(--lyrics-overflow, -35px));
+  }
 }
 
 /* Micro-indicador acústico orgánico */
@@ -337,6 +527,8 @@ html, body {
   align-items: center;
   gap: 2px;
   height: 10px;
+  flex-shrink: 0;
+  margin-left: 14px;
 }
 
 .acoustic-bar {
@@ -354,6 +546,138 @@ html, body {
 @keyframes ac-bounce {
   from { height: 2.5px; }
   to { height: 10px; }
+}
+
+/* Modo TV: Ocultar únicamente el texto mini y la letra, preservando el logo giratorio y la animación de reproducción */
+#compact-media.is-tv-mode .mini-media-wrapper,
+#compact-media.is-tv-mode .compact-lyrics-wrap {
+  display: none !important;
+}
+
+#compact-media.is-tv-mode .media-left,
+#compact-media.is-tv-mode .media-right {
+  display: flex;
+  align-items: center;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto;
+  z-index: 5;
+  max-width: calc(50% - var(--cuco-slot, 0px) / 2);
+}
+
+#compact-media.is-tv-mode:not(.tv-marquee-off) .media-left {
+  max-width: 32px;
+}
+
+#compact-media.is-tv-mode:not(.tv-marquee-off) .media-right {
+  max-width: 28px;
+  justify-content: flex-end;
+}
+
+/* Modo TV: Elementos de reposo (Hora/Clima y Batería) */
+.tv-idle-time-weather {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  transition: opacity 0.35s ease;
+}
+
+.tv-idle-battery {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 6px;
+  transition: opacity 0.35s ease;
+}
+
+/* Ocultar elementos de TV reposo por defecto cuando no estamos en TV mode */
+.tv-idle-time-weather.hidden,
+.tv-idle-battery.hidden {
+  display: none !important;
+}
+
+/* Estado 1: TV Marquee ACTIVO (1 min) -> Logo giratorio + Marquee + Ecualizador */
+#compact-media.is-tv-mode:not(.tv-marquee-off) .media-thumb-mini {
+  display: block !important;
+  opacity: 1;
+}
+
+#compact-media.is-tv-mode:not(.tv-marquee-off) .tv-idle-time-weather,
+#compact-media.is-tv-mode:not(.tv-marquee-off) .tv-idle-battery {
+  display: none !important;
+}
+
+/* Estado 2: TV Marquee INACTIVO / OCULTO (8 min) -> Devuelve la hora y el clima + Batería + Ecualizador */
+#compact-media.is-tv-mode.tv-marquee-off .media-thumb-mini {
+  display: none !important;
+}
+
+#compact-media.is-tv-mode.tv-marquee-off .tv-idle-time-weather {
+  display: flex !important;
+  opacity: 1;
+}
+
+#compact-media.is-tv-mode.tv-marquee-off .tv-idle-battery {
+  display: flex !important;
+  opacity: 1;
+}
+
+/* Pista de Marquee para Modo TV: corre entre el logo giratorio y el ecualizador, con amplio margen de separación */
+.tv-marquee-track {
+  position: absolute;
+  left: 38px;
+  right: 32px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  z-index: 1;
+  pointer-events: none;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  opacity: 1;
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tv-marquee-track.hidden {
+  display: none !important;
+}
+
+.tv-marquee-track.tv-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tv-marquee-inner {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: tvMarqueeScroll 24s linear infinite;
+  will-change: transform;
+}
+
+.tv-marquee-text {
+  font-family: var(--font-text);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--theme-text-bright);
+  opacity: 0.95;
+  letter-spacing: -0.01em;
+  padding-right: 48px;
+  text-shadow: var(--theme-text-shadow);
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+
+@keyframes tvMarqueeScroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 /* Descargas compactas */
@@ -695,6 +1019,18 @@ html, body {
   transition: color 0.4s ease, text-shadow 0.4s ease;
 }
 
+.exp-title-marquee-wrap {
+  max-width: 330px;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+}
+
 .media-title {
   font-family: var(--font-display);
   font-size: 13.5px;
@@ -702,12 +1038,49 @@ html, body {
   letter-spacing: -0.015em;
   color: var(--theme-text-bright);
   margin-top: 1px;
-  max-width: 330px;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: inline-block;
   text-shadow: var(--theme-text-shadow);
   transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+
+.media-title.scrolling {
+  animation: marqueeScroll 10s linear infinite;
+}
+
+/* Letra sincronizada en modo expandido */
+.exp-lyrics-wrap {
+  margin-top: 3px;
+  max-width: 320px;
+  min-height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+}
+
+.exp-lyrics-wrap.hidden {
+  display: none !important;
+}
+
+.exp-lyrics-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--theme-text-bright);
+  opacity: 0.92;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+  display: inline-block;
+  text-shadow: var(--theme-text-shadow);
+  transition: opacity 0.22s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s ease;
+}
+
+.exp-lyrics-text.phrase-change {
+  opacity: 0;
+  transform: translateY(3px);
 }
 
 /* Scrubber / Barra de Progreso Fina */

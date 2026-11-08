@@ -168,27 +168,26 @@
           </svg>
         </div>
 
-        <!-- Accesorio: Conexión Cable / USB / Enchufe con chispa -->
+        <!-- Accesorio: Conexión al suelo / Toma de corriente y Cable -->
         <div class="cuco-cable-prop">
           <svg class="cuco-layer cuco-cable-svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
             <g class="cuco-cable-group">
-              <!-- Enchufe / Conector macho (izq / en mano de CUCO) -->
-              <g class="cuco-plug-male">
-                <path d="M14,54 C18,52 24,50 28,49" fill="none" stroke="url(#cuco-g-cable)" stroke-width="2.2" stroke-linecap="round"/>
-                <rect x="26.5" y="46.5" width="6" height="5.2" rx="1.6" fill="#1E293B" stroke="#475569" stroke-width="0.5"/>
-                <rect x="32" y="47.6" width="3.2" height="3" rx="0.5" fill="url(#cuco-g-plug)"/>
-                <!-- Pequeñas clavijas -->
-                <line x1="33" y1="48.8" x2="34.5" y2="48.8" stroke="#0F172A" stroke-width="0.5"/>
-                <line x1="33" y1="50" x2="34.5" y2="50" stroke="#0F172A" stroke-width="0.5"/>
+              <!-- Toma / Conector empotrado en el suelo a la derecha -->
+              <g class="cuco-floor-socket">
+                <ellipse cx="49" cy="59.5" rx="5" ry="1.6" fill="#090D1A" stroke="#334155" stroke-width="0.7"/>
+                <ellipse cx="49" cy="59.5" rx="2.5" ry="0.8" fill="#0284C7"/>
               </g>
-              <!-- Puerto / Conector hembra (der / en su otra mano) -->
-              <g class="cuco-plug-female">
-                <rect x="35" y="46.5" width="7" height="5.2" rx="1.6" fill="#1E293B" stroke="#475569" stroke-width="0.5"/>
-                <rect x="34.8" y="47.6" width="1.2" height="3" rx="0.3" fill="#0284C7"/>
-                <path d="M41,49 C45,50 50,52 54,54" fill="none" stroke="url(#cuco-g-cable)" stroke-width="2.2" stroke-linecap="round"/>
+              <!-- Cable y Enchufe que sostiene CUCO -->
+              <g class="cuco-floor-plug">
+                <path class="cuco-floor-cord" d="M38,48 C41,51 46,55 49,57.5" fill="none" stroke="url(#cuco-g-cable)" stroke-width="2.2" stroke-linecap="round"/>
+                <!-- Cabezal del enchufe -->
+                <rect class="cuco-floor-head" x="46.5" y="54" width="5" height="4.5" rx="1.2" fill="#1E293B" stroke="#475569" stroke-width="0.5"/>
+                <!-- Clavija metálica hacia el suelo -->
+                <rect class="cuco-floor-pin" x="48.1" y="58" width="1.8" height="2" rx="0.3" fill="url(#cuco-g-plug)"/>
               </g>
-              <!-- Chispa de conexión / arco de energía -->
-              <circle class="cuco-plug-spark" cx="34" cy="49" r="4.2" fill="url(#cuco-g-spark)"/>
+              <!-- Chispa y Rayos de conexión en el suelo -->
+              <circle class="cuco-plug-spark" cx="49" cy="59.5" r="5.5" fill="url(#cuco-g-spark)"/>
+              <path class="cuco-plug-rays" d="M49,56.5 L46.5,53.5 M49.5,56.5 L52.5,52.5 M45,59.5 L41.5,58.5 M53,59.5 L56.5,58" fill="none" stroke="#67E8F9" stroke-width="0.9" stroke-linecap="round"/>
             </g>
           </svg>
         </div>
@@ -340,6 +339,8 @@
     let lookTimer = null;
     let captionTimer = null;
     let sayTimer = null;
+    let danceTimer = null;
+    let danceStep = 1;
 
     // ---------- Accesibilidad: movimiento reducido ----------
     const mq = typeof root.matchMedia === 'function' ? root.matchMedia('(prefers-reduced-motion: reduce)') : null;
@@ -477,7 +478,16 @@
         else delete el.dataset[attr];
       }
       // Si cambia de canción/modo de música mientras se reproduce, asegurar refresco inmediato
-      if (name === 'musicDancing' || name === 'mediaTv' || name === 'headphonesOn' || name === 'headphonesOff' || name === 'tvDeploy' || name === 'plugConnecting' || name === 'plugDisconnecting') {
+      if (name === 'musicDancing') {
+        if (value) {
+          startDanceCycle();
+        } else {
+          stopDanceCycle();
+        }
+        requestUpdate(0);
+        return;
+      }
+      if (name === 'mediaTv' || name === 'headphonesOn' || name === 'headphonesOff' || name === 'tvDeploy' || name === 'plugConnecting' || name === 'plugDisconnecting') {
         requestUpdate(0);
         return;
       }
@@ -555,9 +565,58 @@
       return current.state;
     }
 
+    // Intercalar entre 5 coreografías de baile diferentes
+    function startDanceCycle() {
+      if (danceTimer) clearInterval(danceTimer);
+      danceStep = 1;
+      el.dataset.danceStyle = '1';
+
+      danceTimer = setInterval(() => {
+        if (destroyed || !machine.getCondition('musicDancing')) {
+          stopDanceCycle();
+          return;
+        }
+        danceStep = (danceStep % 5) + 1;
+        el.dataset.danceStyle = String(danceStep);
+      }, 15000); // Cambia de estilo cada 15 segundos
+    }
+
+    function stopDanceCycle() {
+      if (danceTimer) {
+        clearInterval(danceTimer);
+        danceTimer = null;
+      }
+      delete el.dataset.danceStyle;
+    }
+
+    // Intercalar entre 5 coreografías de baile diferentes
+    function startDanceCycle() {
+      if (danceTimer) clearInterval(danceTimer);
+      danceStep = 1;
+      el.dataset.danceStyle = '1';
+
+      danceTimer = setInterval(() => {
+        if (destroyed || !machine.getCondition('musicDancing')) {
+          stopDanceCycle();
+          return;
+        }
+        danceStep = (danceStep % 5) + 1;
+        el.dataset.danceStyle = String(danceStep);
+      }, 3400); // Cambia de estilo cada 3.4 segundos
+    }
+
+    function stopDanceCycle() {
+      if (danceTimer) {
+        clearInterval(danceTimer);
+        danceTimer = null;
+      }
+      delete el.dataset.danceStyle;
+    }
+
     function destroy() {
       if (destroyed) return;
       destroyed = true;
+      stopDanceCycle();
       for (const t of [expiryTimer, updateTimer, ambientTimer, blinkTimer, blinkTimer2, lookTimer, captionTimer, sayTimer]) {
         if (t) clearTimeout(t);
       }
@@ -573,6 +632,7 @@
     const api = {
       STATES,
       setCondition,
+      getCondition: (name) => machine.getCondition(name),
       react,
       emit,
       defineReaction,

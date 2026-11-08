@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, ipcMain, powerMonitor } = require('electron');
+const { app, BrowserWindow, screen, ipcMain, powerMonitor, Tray, Menu } = require('electron');
 const http = require('http');
 const path = require('path');
 const { spawn } = require('child_process');
@@ -16,6 +16,8 @@ try {
 } catch (e) {}
 
 let win = null;
+let settingsWin = null;
+let tray = null;
 let mediaProcess = null;
 let usbProcess = null;
 let server = null;
@@ -81,6 +83,164 @@ ipcMain.on('media-control', (event, action) => {
 
 ipcMain.on('close-app', () => {
   app.quit();
+});
+
+// ============================================================
+// VENTANA DE CONFIGURACIÓN & BANDEJA DE SISTEMA (TRAY)
+// ============================================================
+function openSettingsWindow() {
+  if (settingsWin && !settingsWin.isDestroyed()) {
+    if (settingsWin.isMinimized()) settingsWin.restore();
+    settingsWin.show();
+    settingsWin.focus();
+    return;
+  }
+
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width: screenWidth, height: screenHeight } = primaryDisplay.workArea;
+  const winWidth = 780;
+  const winHeight = 540;
+  const x = Math.round((screenWidth - winWidth) / 2);
+  const y = Math.round((screenHeight - winHeight) / 2);
+
+  settingsWin = new BrowserWindow({
+    width: winWidth,
+    height: winHeight,
+    x,
+    y,
+    frame: false,
+    resizable: false,
+    transparent: true,
+    backgroundColor: '#0c0c0e',
+    show: false,
+    skipTaskbar: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+
+  settingsWin.loadFile('settings.html');
+
+  settingsWin.once('ready-to-show', () => {
+    settingsWin.show();
+    settingsWin.focus();
+  });
+
+  settingsWin.on('closed', () => {
+    settingsWin = null;
+  });
+}
+
+function createTray() {
+  try {
+    const iconPath = path.join(__dirname, 'assets', 'tray_icon.png');
+    tray = new Tray(iconPath);
+    tray.setToolTip('LockNotch • Dynamic Island');
+
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: 'Configuración...',
+        click: () => openSettingsWindow()
+      },
+      { type: 'separator' },
+      {
+        label: 'Expandir / Colapsar Notch',
+        click: () => {
+          if (win && !win.isDestroyed()) win.webContents.send('toggle-expand');
+        }
+      },
+      {
+        label: 'Reiniciar Servicios',
+        click: () => restartServices()
+      },
+      { type: 'separator' },
+      {
+        label: 'Salir de LockNotch',
+        click: () => app.quit()
+      }
+    ]);
+
+    tray.setContextMenu(contextMenu);
+    tray.on('click', () => openSettingsWindow());
+    tray.on('double-click', () => openSettingsWindow());
+  } catch (err) {
+    console.warn('Error al inicializar Tray:', err.message);
+  }
+}
+
+function restartServices() {
+  if (mediaProcess) {
+    try { mediaProcess.kill(); } catch (e) {}
+    mediaProcess = null;
+  }
+  if (usbProcess) {
+    try { usbProcess.kill(); } catch (e) {}
+    usbProcess = null;
+  }
+  setTimeout(() => {
+    startMediaBridge();
+    startUsbMonitor();
+  }, 400);
+}
+
+ipcMain.on('open-settings', () => openSettingsWindow());
+
+ipcMain.on('settings-minimize', () => {
+  if (settingsWin && !settingsWin.isDestroyed()) settingsWin.minimize();
+});
+
+ipcMain.on('settings-close', () => {
+  if (settingsWin && !settingsWin.isDestroyed()) settingsWin.close();
+});
+
+ipcMain.handle('get-autostart-status', () => {
+  try {
+    return app.getLoginItemSettings().openAtLogin;
+  } catch (e) {
+    return false;
+  }
+});
+
+ipcMain.on('settings-updated', (event, config) => {
+  if (win && !win.isDestroyed()) {
+    win.webContents.send('settings-sync', config);
+  }
+  if (config.alwaysOnTop !== undefined && win && !win.isDestroyed()) {
+    win.setAlwaysOnTop(!!config.alwaysOnTop, 'screen-saver');
+  }
+  if (config.autostart !== undefined) {
+    try {
+      app.setLoginItemSettings({
+        openAtLogin: !!config.autostart,
+        path: process.execPath,
+        args: []
+      });
+    } catch (e) {
+      console.warn('Error configurando autostart:', e);
+    }
+  }
+});
+
+ipcMain.on('test-cuco-action', (event, action) => {
+  if (win && !win.isDestroyed()) {
+    win.webContents.send('cuco-test', action);
+  }
+});
+
+ipcMain.on('test-usb-action', (event, action) => {
+  if (win && !win.isDestroyed()) {
+    win.webContents.send('usb-event', {
+      type: 'usb',
+      action: action,
+      device: 'Memoria USB Kingston 3.0',
+      drive: 'E:'
+    });
+  }
+});
+
+ipcMain.on('restart-services', () => {
+  restartServices();
 });
 
 // Lee líneas JSON de un proceso hijo y las reenvía a la UI
@@ -152,7 +312,13 @@ function startHttpServer() {
       return res.end();
     }
 
-    const routes = { '/downloads': 'download-event', '/usb': 'usb-event' };
+    if (req.url === '/settings') {
+      openSettingsWindow();
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ status: 'settings_opened' }));
+    }
+
+    const routes = { '/downloads': 'download-event', '/usb': 'usb-event', '/media': 'media-event' };
     const channel = routes[req.url];
 
     if (req.method === 'POST' && channel) {
@@ -186,6 +352,7 @@ function startHttpServer() {
 
 app.whenReady().then(() => {
   createWindow();
+  createTray();
   startHttpServer();
   startMediaBridge();
   startUsbMonitor();

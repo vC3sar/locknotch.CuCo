@@ -20,7 +20,8 @@
   --cuco-top: 2px;
 
   position: absolute;
-  z-index: 5;
+  z-index: 10;
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.75));
   left: var(--cuco-cx);
   top: var(--cuco-top);
   width: var(--cuco-size);
@@ -53,7 +54,8 @@
 /* ---------- Nombre / mensaje breve (solo expandido) ---------- */
 .cuco-caption {
   position: absolute;
-  z-index: 5;
+  z-index: 10;
+  filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.75));
   top: 13px;
   left: calc(50% + 22px);
   max-width: 86px;
@@ -245,6 +247,94 @@
   100% { opacity: 0.85; filter: brightness(1.05); }
 }
 
+/* ---------- Prop Cable / Toma de suelo (animación de caminar, enchufar y jalar) ---------- */
+.cuco-cable-prop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 14;
+}
+
+.cuco[data-plug-connecting] .cuco-cable-prop,
+.cuco[data-plug-disconnecting] .cuco-cable-prop {
+  opacity: 1;
+}
+
+.cuco-floor-socket {
+  opacity: 0.95;
+}
+
+.cuco-floor-plug {
+  transform-origin: 49px 58px;
+  will-change: transform, opacity;
+}
+
+.cuco-plug-spark {
+  opacity: 0;
+  transform-origin: 49px 59.5px;
+  will-change: transform, opacity;
+}
+
+.cuco-plug-rays {
+  opacity: 0;
+  transform-origin: 49px 57px;
+  will-change: transform, opacity;
+}
+
+/* Caminar a la derecha y enchufar al suelo */
+.cuco[data-plug-connecting] .cuco-float {
+  animation: cuco-walk-and-plug 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.cuco[data-plug-connecting] .cuco-pose {
+  animation: cuco-walk-bob 2.2s ease-in-out forwards;
+}
+.cuco[data-plug-connecting] .cuco-head-pose {
+  animation: cuco-walk-head-tilt 2.2s ease-in-out forwards;
+}
+.cuco[data-plug-connecting] .cuco-gaze {
+  animation: cuco-plug-gaze 2.2s ease-in-out forwards;
+}
+.cuco[data-plug-connecting] .cuco-arm-l {
+  animation: cuco-walk-arm-plug-l 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.cuco[data-plug-connecting] .cuco-arm-r {
+  animation: cuco-walk-arm-plug-r 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.cuco[data-plug-connecting] .cuco-floor-plug {
+  animation: cuco-cord-connect 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.cuco[data-plug-connecting] .cuco-plug-spark {
+  animation: cuco-spark-burst 2.2s ease-out forwards;
+}
+.cuco[data-plug-connecting] .cuco-plug-rays {
+  animation: cuco-rays-flash 2.2s ease-out forwards;
+}
+
+/* Caminar, jalar con fuerza hacia arriba y salir despedido hacia atrás */
+.cuco[data-plug-disconnecting] .cuco-float {
+  animation: cuco-walk-pull-recoil 2.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.cuco[data-plug-disconnecting] .cuco-pose {
+  animation: cuco-pull-body-lean 2.3s ease-in-out forwards;
+}
+.cuco[data-plug-disconnecting] .cuco-head-pose {
+  animation: cuco-pull-head-effort 2.3s ease-in-out forwards;
+}
+.cuco[data-plug-disconnecting] .cuco-arm-l {
+  animation: cuco-walk-arm-pull-l 2.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.cuco[data-plug-disconnecting] .cuco-arm-r {
+  animation: cuco-walk-arm-pull-r 2.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.cuco[data-plug-disconnecting] .cuco-floor-plug {
+  animation: cuco-cord-yank 2.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.cuco[data-plug-disconnecting] .cuco-eye {
+  animation: cuco-pull-eyes-effort 2.3s ease-in-out forwards;
+}
+
 /* ---------- Vida ambiental ---------- */
 .cuco.is-blinking .cuco-eye-anim {
   animation: cuco-blink 0.17s ease-in-out;
@@ -327,18 +417,6 @@
 .cuco[data-music-dancing] {
   --cuco-float: 1.1s;
 }
-.cuco[data-music-dancing] .cuco-float {
-  animation: cuco-dance-bounce 0.55s ease-in-out infinite alternate;
-}
-.cuco[data-music-dancing] .cuco-head {
-  animation: cuco-dance-head 0.55s ease-in-out infinite alternate;
-}
-.cuco[data-music-dancing] .cuco-arm-l {
-  animation: cuco-dance-arm-l 0.55s ease-in-out infinite alternate;
-}
-.cuco[data-music-dancing] .cuco-arm-r {
-  animation: cuco-dance-arm-r 0.55s ease-in-out infinite alternate;
-}
 .cuco[data-music-dancing] .cuco-eye {
   d: path("M0,-2.4 C2.2,-2.4 3.7,-0.4 3.7,1.8 C2.7,0.7 1.4,0.1 0,0.1 C-1.4,0.1 -2.7,0.7 -3.7,1.8 C-3.7,-0.4 -2.2,-2.4 0,-2.4 Z");
 }
@@ -350,21 +428,101 @@
   opacity: 0.6;
 }
 
-/* Con reproducción de otras apps (videos/navegador): Con audífonos viendo la TV */
+/* --- Baile 1: Bounce & Wave (Rebote alegre y balanceo rítmico cruzado) --- */
+.cuco[data-music-dancing][data-dance-style="1"] .cuco-float {
+  animation: cuco-dance-bounce 0.55s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="1"] .cuco-head {
+  animation: cuco-dance-head 0.55s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="1"] .cuco-arm-l {
+  animation: cuco-dance-arm-l 0.55s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="1"] .cuco-arm-r {
+  animation: cuco-dance-arm-r 0.55s ease-in-out infinite alternate;
+}
+
+/* --- Baile 2: Robot Pop / Disco (Movimientos geométricos estilo disco funk) --- */
+.cuco[data-music-dancing][data-dance-style="2"] .cuco-float {
+  animation: cuco-dance-disco-bob 0.48s steps(2, end) infinite;
+}
+.cuco[data-music-dancing][data-dance-style="2"] .cuco-head {
+  animation: cuco-dance-disco-head 0.96s steps(4, end) infinite;
+}
+.cuco[data-music-dancing][data-dance-style="2"] .cuco-arm-l {
+  animation: cuco-dance-disco-arm-l 0.96s steps(4, end) infinite;
+}
+.cuco[data-music-dancing][data-dance-style="2"] .cuco-arm-r {
+  animation: cuco-dance-disco-arm-r 0.96s steps(4, end) infinite;
+}
+
+/* --- Baile 3: Headbang & Jump (Salto enérgico y headbang rockero con ambas manos arriba) --- */
+.cuco[data-music-dancing][data-dance-style="3"] .cuco-float {
+  animation: cuco-dance-jump 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="3"] .cuco-head {
+  animation: cuco-dance-headbang 0.42s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="3"] .cuco-arm-l {
+  animation: cuco-dance-pump-arm-l 0.42s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="3"] .cuco-arm-r {
+  animation: cuco-dance-pump-arm-r 0.42s ease-in-out infinite alternate;
+}
+
+/* --- Baile 4: Side Groove & Sway (Onda suave lateral de cadera y cabeza) --- */
+.cuco[data-music-dancing][data-dance-style="4"] .cuco-float {
+  animation: cuco-dance-sway-float 0.85s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="4"] .cuco-pose {
+  animation: cuco-dance-sway-body 0.85s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="4"] .cuco-head {
+  animation: cuco-dance-sway-head 0.85s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="4"] .cuco-arm-l {
+  animation: cuco-dance-sway-arm-l 0.85s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="4"] .cuco-arm-r {
+  animation: cuco-dance-sway-arm-r 0.85s ease-in-out infinite alternate;
+}
+
+/* --- Baile 5: Hands in the Air / Party Clapping (Manos arriba ondeando de fiesta) --- */
+.cuco[data-music-dancing][data-dance-style="5"] .cuco-float {
+  animation: cuco-dance-party-float 0.62s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="5"] .cuco-head {
+  animation: cuco-dance-party-head 0.62s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="5"] .cuco-arm-l {
+  animation: cuco-dance-party-arm-l 0.62s ease-in-out infinite alternate;
+}
+.cuco[data-music-dancing][data-dance-style="5"] .cuco-arm-r {
+  animation: cuco-dance-party-arm-r 0.62s ease-in-out infinite alternate;
+}
+
+/* Con reproducción de otras apps (videos/navegador): Con audífonos viendo la TV de manera orgánica y natural */
 .cuco[data-media-tv] .cuco-head-pose {
-  transform: translateY(3%) rotate(0deg);
+  animation: cuco-tv-watch-head 7.5s ease-in-out infinite;
 }
 .cuco[data-media-tv] .cuco-gaze {
-  transform: translate(0, 1.8px); /* Mirando hacia abajo a la TV */
+  animation: cuco-tv-watch-gaze 7.5s ease-in-out infinite;
 }
 .cuco[data-media-tv] .cuco-eye {
+  animation: cuco-tv-watch-eyes 7.5s ease-in-out infinite;
   d: path("M0,-3.5 C2,-3.5 3.5,-1.8 3.5,0.6 C3.5,2.8 2,4.4 0,4.4 C-2,4.4 -3.5,2.8 -3.5,0.6 C-3.5,-1.8 -2,-3.5 0,-3.5 Z");
 }
+.cuco[data-media-tv] .cuco-mouth {
+  animation: cuco-tv-watch-mouth 7.5s ease-in-out infinite;
+}
+.cuco[data-media-tv] .cuco-blush {
+  animation: cuco-tv-watch-blush 7.5s ease-in-out infinite;
+}
 .cuco[data-media-tv] .cuco-arm-l {
-  transform: rotate(38deg) translateY(-2px); /* Sosteniendo o apoyado en la tele */
+  animation: cuco-tv-watch-arm-l 7.5s ease-in-out infinite;
 }
 .cuco[data-media-tv] .cuco-arm-r {
-  transform: rotate(-38deg) translateY(-2px);
+  animation: cuco-tv-watch-arm-r 7.5s ease-in-out infinite;
 }
 
 /* Con música genérica (fallback si no es ni baile ni TV específica): balanceo suave */
@@ -509,7 +667,11 @@
   to { transform: rotate(-22deg); }
 }
 
-/* Coreografía de Baile (con música en plataformas streaming) */
+/* ============================================================
+   5 COREOGRAFÍAS DE BAILE DIFERENTES
+   ============================================================ */
+
+/* Baile 1: Bounce & Wave */
 @keyframes cuco-dance-bounce {
   0% { transform: translateY(0) scale(1, 1); }
   50% { transform: translateY(-7%) scale(0.97, 1.03); }
@@ -532,6 +694,456 @@
   0% { transform: rotate(-40deg) translateY(2px); }
   50% { transform: rotate(-15deg); }
   100% { transform: rotate(50deg) translateY(-2px); }
+}
+
+/* Baile 2: Robot Pop / Disco Funk */
+@keyframes cuco-dance-disco-bob {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-4px) scale(1.02, 0.98); }
+}
+
+@keyframes cuco-dance-disco-head {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  25% { transform: rotate(-9deg) translateX(-1.5px); }
+  50% { transform: rotate(0deg) translateX(0); }
+  75% { transform: rotate(9deg) translateX(1.5px); }
+}
+
+@keyframes cuco-dance-disco-arm-l {
+  0%, 100% { transform: rotate(15deg) translateY(0); }
+  25% { transform: rotate(-80deg) translateY(-3px); } /* Brazo en ángulo diagonal */
+  50% { transform: rotate(20deg) translateY(1px); }
+  75% { transform: rotate(95deg) translateY(-4px); }  /* Brazo apuntando arriba */
+}
+
+@keyframes cuco-dance-disco-arm-r {
+  0%, 100% { transform: rotate(-15deg) translateY(0); }
+  25% { transform: rotate(80deg) translateY(-3px); }
+  50% { transform: rotate(-20deg) translateY(1px); }
+  75% { transform: rotate(-95deg) translateY(-4px); }
+}
+
+/* Baile 3: Headbang & Jump */
+@keyframes cuco-dance-jump {
+  0% { transform: translateY(0) scale(1.03, 0.97); }
+  50% { transform: translateY(-9%) scale(0.96, 1.05); }
+  100% { transform: translateY(-13%) scale(0.95, 1.06); }
+}
+
+@keyframes cuco-dance-headbang {
+  0% { transform: translateY(3%) rotate(8deg); }
+  100% { transform: translateY(-3%) rotate(-10deg); }
+}
+
+@keyframes cuco-dance-pump-arm-l {
+  0% { transform: rotate(85deg) translateY(-1px); }
+  100% { transform: rotate(125deg) translateY(-5px); } /* Puños arriba al ritmo */
+}
+
+@keyframes cuco-dance-pump-arm-r {
+  0% { transform: rotate(-85deg) translateY(-1px); }
+  100% { transform: rotate(-125deg) translateY(-5px); }
+}
+
+/* Baile 4: Side Groove & Sway */
+@keyframes cuco-dance-sway-float {
+  0% { transform: translateX(-4px) translateY(0); }
+  100% { transform: translateX(4px) translateY(-2px); }
+}
+
+@keyframes cuco-dance-sway-body {
+  0% { transform: rotate(-6deg); }
+  100% { transform: rotate(6deg); }
+}
+
+@keyframes cuco-dance-sway-head {
+  0% { transform: rotate(8deg); }
+  100% { transform: rotate(-8deg); }
+}
+
+@keyframes cuco-dance-sway-arm-l {
+  0% { transform: rotate(35deg) translateX(-2px); }
+  100% { transform: rotate(-25deg) translateX(2px); }
+}
+
+@keyframes cuco-dance-sway-arm-r {
+  0% { transform: rotate(25deg) translateX(-2px); }
+  100% { transform: rotate(-35deg) translateX(2px); }
+}
+
+/* Baile 5: Hands in the Air / Party Clapping */
+@keyframes cuco-dance-party-float {
+  0% { transform: translateY(0) scale(1, 1); }
+  50% { transform: translateY(-5%) scale(0.98, 1.02); }
+  100% { transform: translateY(0.5%) scale(1.02, 0.98); }
+}
+
+@keyframes cuco-dance-party-head {
+  0% { transform: rotate(-4deg); }
+  50% { transform: rotate(0deg); }
+  100% { transform: rotate(4deg); }
+}
+
+@keyframes cuco-dance-party-arm-l {
+  0% { transform: rotate(115deg) translateY(-4px); }
+  50% { transform: rotate(95deg) translateY(-2px); }
+  100% { transform: rotate(125deg) translateY(-5px); } /* Aplaudiendo y ondeando arriba */
+}
+
+@keyframes cuco-dance-party-arm-r {
+  0% { transform: rotate(-115deg) translateY(-4px); }
+  50% { transform: rotate(-95deg) translateY(-2px); }
+  100% { transform: rotate(-125deg) translateY(-5px); }
+}
+
+/* --- Animaciones de Manos y Auriculares --- */
+@keyframes cuco-arms-put-hp-l {
+  0% { transform: rotate(12deg); }
+  35% { transform: rotate(125deg) translateY(-4px); }
+  70% { transform: rotate(115deg) translateY(-2px); }
+  100% { transform: rotate(12deg); }
+}
+
+@keyframes cuco-arms-put-hp-r {
+  0% { transform: rotate(-12deg); }
+  35% { transform: rotate(-125deg) translateY(-4px); }
+  70% { transform: rotate(-115deg) translateY(-2px); }
+  100% { transform: rotate(-12deg); }
+}
+
+@keyframes cuco-hp-put-down {
+  0% { opacity: 0; transform: translateY(-12px) scale(0.9); }
+  40% { opacity: 1; transform: translateY(-3px) scale(1.04); }
+  75% { opacity: 1; transform: translateY(1px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes cuco-arms-takeoff-hp-l {
+  0% { transform: rotate(12deg); }
+  25% { transform: rotate(118deg) translateY(-2px); }
+  60% { transform: rotate(130deg) translateY(-6px); }
+  100% { transform: rotate(12deg); }
+}
+
+@keyframes cuco-arms-takeoff-hp-r {
+  0% { transform: rotate(-12deg); }
+  25% { transform: rotate(-118deg) translateY(-2px); }
+  60% { transform: rotate(-130deg) translateY(-6px); }
+  100% { transform: rotate(-12deg); }
+}
+
+@keyframes cuco-hp-takeoff-up {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  30% { opacity: 1; transform: translateY(-3px) scale(1.02); }
+  70% { opacity: 0.6; transform: translateY(-10px) scale(0.95); }
+  100% { opacity: 0; transform: translateY(-16px) scale(0.85); }
+}
+
+/* --- Animaciones de Manos y TV --- */
+@keyframes cuco-arms-lift-tv-l {
+  0% { transform: rotate(12deg); }
+  20% { transform: rotate(-10deg) translateY(6px); }
+  65% { transform: rotate(45deg) translateY(-3px); }
+  100% { transform: rotate(38deg) translateY(-2px); }
+}
+
+@keyframes cuco-arms-lift-tv-r {
+  0% { transform: rotate(-12deg); }
+  20% { transform: rotate(10deg) translateY(6px); }
+  65% { transform: rotate(-45deg) translateY(-3px); }
+  100% { transform: rotate(-38deg) translateY(-2px); }
+}
+
+@keyframes cuco-tv-lift-up {
+  0% { opacity: 0; transform: translateY(18px) scale(0.5); }
+  60% { opacity: 1; transform: translateY(-2px) scale(1.05); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* --- Animaciones de Enchufar Cables / USB --- */
+@keyframes cuco-arm-plug-in-l {
+  0% { transform: rotate(12deg); }
+  25% { transform: rotate(-25deg) translateY(1px); }
+  55% { transform: rotate(20deg) translateX(3px); }
+  75% { transform: rotate(22deg) translateX(4px); }
+  100% { transform: rotate(12deg); }
+}
+
+@keyframes cuco-arm-plug-in-r {
+  0% { transform: rotate(-12deg); }
+  25% { transform: rotate(25deg) translateY(1px); }
+  55% { transform: rotate(-20deg) translateX(-3px); }
+  75% { transform: rotate(-22deg) translateX(-4px); }
+  100% { transform: rotate(-12deg); }
+}
+
+@keyframes cuco-plug-in-m {
+  0% { transform: translateX(-8px); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(1px); }
+  75% { transform: translateX(1px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes cuco-plug-in-f {
+  0% { transform: translateX(8px); }
+  45% { transform: translateX(4px); }
+  60% { transform: translateX(-1px); }
+  75% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes cuco-spark-burst {
+  0%, 50% { opacity: 0; transform: scale(0.2); }
+  53% { opacity: 1; transform: scale(1.6); }
+  62% { opacity: 0.9; transform: scale(1.1); }
+  72% { opacity: 0.4; transform: scale(0.6); }
+  82%, 100% { opacity: 0; transform: scale(0); }
+}
+
+@keyframes cuco-rays-flash {
+  0%, 50% { opacity: 0; transform: scale(0.3) rotate(0deg); }
+  53% { opacity: 1; transform: scale(1.5) rotate(15deg); }
+  60% { opacity: 0.85; transform: scale(1.2) rotate(32deg); }
+  70% { opacity: 0.3; transform: scale(0.7) rotate(48deg); }
+  80%, 100% { opacity: 0; transform: scale(0); }
+}
+
+@keyframes cuco-plug-gaze {
+  0% { transform: translate(0, 0); }
+  15%, 30% { transform: translate(1.8px, 0.4px); } /* Mira hacia el frente-derecha al caminar */
+  40%, 65% { transform: translate(1.4px, 2px); }   /* Mira fijamente al enchufe del piso */
+  72%, 85% { transform: translate(0, -1px); }     /* Mira hacia arriba satisfecho */
+  96%, 100% { transform: translate(0, 0); }
+}
+
+/* --- Animaciones de Enchufar al suelo (caminar a la derecha, conectar al suelo con destello y regresar) --- */
+@keyframes cuco-walk-and-plug {
+  0% { transform: translate(0, 0); }
+  8% { transform: translate(4px, -1.8px); }   /* Paso 1 de caminata */
+  16% { transform: translate(7.5px, 0.3px); }
+  24% { transform: translate(11px, -1.8px); }  /* Paso 2 de caminata */
+  33% { transform: translate(13.5px, 0); }     /* Llega junto al conector */
+  42% { transform: translate(14px, 2.5px); }   /* Se agacha y alinea el enchufe */
+  52% { transform: translate(14px, 4.2px); }   /* ¡CLICK! Empuje firme hacia el suelo */
+  60% { transform: translate(14px, 2.8px); }   /* Rebote elástico de satisfacción */
+  72% { transform: translate(13.5px, 0); }     /* Se pone de pie erguido */
+  84% { transform: translate(6.5px, -1.2px); } /* Paso de regreso al centro */
+  94% { transform: translate(1px, -0.3px); }
+  100% { transform: translate(0, 0); }        /* Reposo fluido en el centro */
+}
+
+@keyframes cuco-walk-bob {
+  0% { transform: translateY(0) rotate(0deg); }
+  8% { transform: translateY(-1.6px) rotate(3.5deg); }
+  16% { transform: translateY(0.5px) rotate(-2deg); }
+  24% { transform: translateY(-1.6px) rotate(3deg); }
+  33% { transform: translateY(0) rotate(0deg); }
+  42% { transform: translateY(2.5px) rotate(4deg); }
+  52% { transform: translateY(3.8px) rotate(5deg); }
+  60% { transform: translateY(2.2px) rotate(2deg); }
+  72% { transform: translateY(0) rotate(0deg); }
+  84% { transform: translateY(-1.2px) rotate(-2.5deg); }
+  94% { transform: translateY(0) rotate(0.8deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes cuco-walk-head-tilt {
+  0% { transform: rotate(0deg); }
+  8% { transform: rotate(3deg); }
+  16% { transform: rotate(-2deg); }
+  24% { transform: rotate(3deg); }
+  35%, 60% { transform: rotate(11deg) translateY(1.5px); } /* Mira hacia el enchufe al conectar */
+  70% { transform: rotate(-5deg) translateY(-0.8px); }    /* Asentimiento alegre */
+  82% { transform: rotate(2.5deg); }
+  94%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes cuco-walk-arm-plug-l {
+  0% { transform: rotate(12deg); }
+  16% { transform: rotate(-25deg); } /* Balancea brazo al caminar */
+  33% { transform: rotate(35deg) translateY(2px); }
+  52% { transform: rotate(45deg) translateY(4px); } /* Mano apoyando la conexión */
+  72% { transform: rotate(20deg); }
+  100% { transform: rotate(12deg); }
+}
+
+@keyframes cuco-walk-arm-plug-r {
+  0% { transform: rotate(-12deg); }
+  16% { transform: rotate(25deg); }
+  33% { transform: rotate(40deg) translateY(2px); } /* Sostiene el enchufe */
+  52% { transform: rotate(50deg) translateY(5px); } /* Clava la clavija con fuerza */
+  72% { transform: rotate(0deg); }
+  100% { transform: rotate(-12deg); }
+}
+
+@keyframes cuco-cord-connect {
+  0% { opacity: 0; transform: translateY(-12px) translateX(-6px); }
+  22% { opacity: 1; transform: translateY(-6px) translateX(-2.5px); }
+  42% { opacity: 1; transform: translateY(-2px) translateX(-0.8px); }
+  52% { transform: translateY(0); }
+  74% { opacity: 1; transform: translateY(0); }
+  96%, 100% { opacity: 0; transform: translateY(0); }
+}
+
+/* --- Animaciones de Desenchufar (caminar a la derecha, jalar con fuerza hacia arriba y retroceder por el rebote) --- */
+@keyframes cuco-walk-pull-recoil {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  8% { transform: translate(4px, -1.5px) rotate(2.5deg); }
+  16% { transform: translate(8px, 0.5px) rotate(-1.5deg); }
+  24% { transform: translate(12px, -1.5px) rotate(2.5deg); }
+  32% { transform: translate(13.5px, 2px) rotate(3deg); }     /* Se agacha y agarra firmemente */
+  40% { transform: translate(11px, 0) rotate(-6deg); }        /* Empieza a jalar hacia atrás */
+  48% { transform: translate(9px, -0.5px) rotate(-11deg); }   /* Tensa todo el cuerpo */
+  54% { transform: translate(7.5px, -0.5px) rotate(-16deg); } /* Fuerza máxima hacia atrás */
+  57% { transform: translate(7.2px, -0.8px) rotate(-18deg); } /* Tensión límite previa a soltarse */
+  60% { transform: translate(-16px, -3.5px) rotate(-14deg); } /* ¡SE SUELTA! Sale despedido hacia atrás */
+  66% { transform: translate(-14px, -2px) rotate(-10deg); }   /* Deceleración balística en el aire */
+  72% { transform: translate(-8px, 1.2px) rotate(5deg); }     /* Tropiezo y apoyo de pies */
+  82% { transform: translate(-4px, -0.4px) rotate(-2.5deg); } /* Recuperación de equilibrio */
+  92% { transform: translate(-1px, 0) rotate(1deg); }         /* Sacudida de alivio */
+  100% { transform: translate(0, 0) rotate(0deg); }           /* Regresa suavemente a reposo */
+}
+
+@keyframes cuco-pull-body-lean {
+  0% { transform: translateY(0) rotate(0deg); }
+  8% { transform: translateY(-1px) rotate(2deg); }
+  16% { transform: translateY(0.5px) rotate(-1.5deg); }
+  24% { transform: translateY(-1px) rotate(2deg); }
+  32% { transform: translateY(2px) rotate(4deg); }
+  40% { transform: translateY(0) rotate(-7deg); }
+  48% { transform: translateY(-0.5px) rotate(-13deg); }
+  54% { transform: translateY(-0.8px) rotate(-18deg); }
+  57% { transform: translateY(-1px) rotate(-20deg); }
+  60% { transform: translateY(-2px) rotate(-15deg); }
+  72% { transform: translateY(1.5px) rotate(6deg); }
+  82% { transform: translateY(-0.5px) rotate(-3deg); }
+  92% { transform: translateY(0) rotate(1deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes cuco-pull-head-effort {
+  0% { transform: rotate(0deg); }
+  8% { transform: rotate(3deg); }
+  24% { transform: rotate(4deg); }
+  32% { transform: rotate(8deg) translateY(2px); }
+  44% { transform: rotate(-8deg) translateY(-0.5px); }
+  54% { transform: rotate(-14deg) translateY(-1px); }
+  60% { transform: rotate(-18deg) translateY(-2px); }
+  72% { transform: rotate(6deg) translateY(1px); }
+  84% { transform: rotate(-3deg); }
+  94%, 100% { transform: rotate(0deg); }
+}
+
+@keyframes cuco-walk-arm-pull-l {
+  0% { transform: rotate(12deg); }
+  20% { transform: rotate(-20deg); }
+  32% { transform: rotate(38deg) translateY(2px); }          /* Agarra el cable */
+  48%, 57% { transform: rotate(64deg) translateY(-3px); }    /* Tirando con fuerza hacia arriba y atrás */
+  60% { transform: rotate(-65deg) translateY(-4px); }        /* Brazos disparados hacia atrás al soltarse */
+  76% { transform: rotate(-15deg); }
+  100% { transform: rotate(12deg); }
+}
+
+@keyframes cuco-walk-arm-pull-r {
+  0% { transform: rotate(-12deg); }
+  20% { transform: rotate(20deg); }
+  32% { transform: rotate(32deg) translateY(2px); }
+  48%, 57% { transform: rotate(58deg) translateY(-3px); }
+  60% { transform: rotate(-60deg) translateY(-4px); }
+  76% { transform: rotate(-10deg); }
+  100% { transform: rotate(-12deg); }
+}
+
+@keyframes cuco-cord-yank {
+  0% { opacity: 0; transform: translateY(0); }
+  20%, 57% { opacity: 1; transform: translateY(0); }
+  60% { opacity: 0.95; transform: translateY(-10px) translateX(-8px) rotate(-22deg) scale(0.9); }
+  74% { opacity: 0.5; transform: translateY(-18px) translateX(-14px) rotate(-42deg) scale(0.7); }
+  90%, 100% { opacity: 0; transform: translateY(-22px) translateX(-16px) scale(0.4); }
+}
+
+@keyframes cuco-pull-eyes-effort {
+  0%, 28% {
+    d: path("M0,-4.5 C2,-4.5 3.5,-2.5 3.5,0 C3.5,2.5 2,4.5 0,4.5 C-2,4.5 -3.5,2.5 -3.5,0 C-3.5,-2.5 -2,-4.5 0,-4.5 Z");
+  }
+  44%, 57% { /* Ojos fuertemente apretados haciendo fuerza para jalar */
+    d: path("M0,1 C1.6,1 2.8,0.5 3.5,-0.2 C3,1.2 1.8,2.2 0,2.2 C-1.8,2.2 -3,1.2 -3.5,-0.2 C-2.8,0.5 -1.6,1 0,1 Z");
+  }
+  60%, 74% { /* Ojos desorbitados por el impacto y sorpresa del retroceso */
+    d: path("M0,-5.2 C2.8,-5.2 4.6,-3 4.6,0 C4.6,3 2.8,5.2 0,5.2 C-2.8,5.2 -4.6,3 -4.6,0 C-4.6,-3 -2.8,-5.2 0,-5.2 Z");
+  }
+  86%, 100% {
+    d: path("M0,-4.5 C2,-4.5 3.5,-2.5 3.5,0 C3.5,2.5 2,4.5 0,4.5 C-2,4.5 -3.5,2.5 -3.5,0 C-3.5,-2.5 -2,-4.5 0,-4.5 Z");
+  }
+}
+
+/* --- Comportamiento orgánico y vivo al ver la TV (reírse, parpadear, mirar con atención, gesticular) --- */
+@keyframes cuco-tv-watch-head {
+  0%, 100% { transform: translateY(3%) rotate(0deg); }
+  18% { transform: translateY(3.5%) rotate(-2.5deg); }
+  32% { transform: translateY(2.5%) rotate(0deg); }
+  45% { transform: translateY(1.5%) rotate(3deg); } /* Inclinación de intriga/atención */
+  60% { transform: translateY(3%) rotate(0deg); }
+  72%, 82% { transform: translateY(1%) rotate(-2deg); } /* Risita/disfrute */
+  90% { transform: translateY(3%) rotate(1deg); }
+}
+
+@keyframes cuco-tv-watch-gaze {
+  0%, 100% { transform: translate(0, 1.8px); }
+  20% { transform: translate(-0.8px, 1.6px); } /* Sigue la acción en la pantalla */
+  35% { transform: translate(0.8px, 1.6px); }
+  45% { transform: translate(0, 1.4px); }
+  72%, 82% { transform: translate(0, 1.2px); }
+  90% { transform: translate(-0.4px, 1.8px); }
+}
+
+@keyframes cuco-tv-watch-eyes {
+  0%, 38%, 42%, 70%, 84%, 100% {
+    d: path("M0,-3.5 C2,-3.5 3.5,-1.8 3.5,0.6 C3.5,2.8 2,4.4 0,4.4 C-2,4.4 -3.5,2.8 -3.5,0.6 C-3.5,-1.8 -2,-3.5 0,-3.5 Z");
+  }
+  39%, 41% { /* Parpadeo natural mientras ve la tele */
+    d: path("M0,1 C1.6,1 2.8,0.5 3.5,-0.2 C3,1.2 1.8,2.2 0,2.2 C-1.8,2.2 -3,1.2 -3.5,-0.2 C-2.8,0.5 -1.6,1 0,1 Z");
+  }
+  72%, 82% { /* Ojos achinados de risa / diversión */
+    d: path("M0,-2.4 C2.2,-2.4 3.7,-0.4 3.7,1.8 C2.7,0.7 1.4,0.1 0,0.1 C-1.4,0.1 -2.7,0.7 -3.7,1.8 C-3.7,-0.4 -2.2,-2.4 0,-2.4 Z");
+  }
+}
+
+@keyframes cuco-tv-watch-mouth {
+  0%, 40%, 65%, 90%, 100% {
+    d: path("M-1.8,0 C-0.9,0.7 0.9,0.7 1.8,0 C1,1.3 -1,1.3 -1.8,0 Z");
+    opacity: 0.8;
+  }
+  45%, 55% { /* Boca abierta de asombro */
+    d: path("M-1.4,0.2 C-1.4,-1.2 1.4,-1.2 1.4,0.2 C1.4,1.6 -1.4,1.6 -1.4,0.2 Z");
+    opacity: 0.95;
+  }
+  72%, 82% { /* Sonrisa / risita ante la tele */
+    d: path("M-3,-0.5 C-1.5,0.6 1.5,0.6 3,-0.5 C2.2,2 -2.2,2 -3,-0.5 Z");
+    opacity: 1;
+  }
+}
+
+@keyframes cuco-tv-watch-blush {
+  0%, 65%, 90%, 100% { opacity: 0.1; }
+  72%, 82% { opacity: 0.55; } /* Se sonroja al reírse */
+}
+
+@keyframes cuco-tv-watch-arm-l {
+  0%, 100% { transform: rotate(38deg) translateY(-2px); }
+  25% { transform: rotate(34deg) translateY(-1px); }
+  45% { transform: rotate(44deg) translateY(-3px); } /* Acomoda o gesticula una mano */
+  72%, 82% { transform: rotate(28deg) translateY(0); } /* Suelta o aplaude sutilmente */
+  90% { transform: rotate(38deg) translateY(-2px); }
+}
+
+@keyframes cuco-tv-watch-arm-r {
+  0%, 100% { transform: rotate(-38deg) translateY(-2px); }
+  30% { transform: rotate(-44deg) translateY(-3px); }
+  50% { transform: rotate(-32deg) translateY(-1px); }
+  72%, 82% { transform: rotate(-28deg) translateY(0); }
+  90% { transform: rotate(-38deg) translateY(-2px); }
 }
 
 /* ============================================================
