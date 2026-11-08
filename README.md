@@ -2,7 +2,7 @@
 
 > **Dynamic Island interactiva y elegante para Windows 10 y 11 con mascota virtual (CUCO), control multimedia avanzado, letras sincronizadas en tiempo real y notificaciones del sistema.**
 
-[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)](https://github.com/vC3sar/LockNotch)
+[![Platform](https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6?logo=windows&logoColor=white)](https://github.com/vC3sar/locknotch.CuCo)
 [![Electron](https://img.shields.io/badge/Electron-33.2.1-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20(GSMTC)-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![Node](https://img.shields.io/badge/Node.js-%3E%3D18.0-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
@@ -91,8 +91,8 @@ Cuando LockNotch está expandido:
 
 ### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/vC3sar/LockNotch.git
-cd LockNotch
+git clone https://github.com/vC3sar/locknotch.CuCo.git
+cd locknotch.CuCo
 ```
 
 ### 2. Instalar dependencias
